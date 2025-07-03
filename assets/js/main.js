@@ -118,9 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isOfflineReady) {
                 updateOfflineButtonState('complete');
             } else if (offlineStatus === 'downloading' || offlineStatus === 'updating') {
-                const count = localStorage.getItem('offline-progress-count') || 0;
-                const total = localStorage.getItem('offline-progress-total') || 1;
-                updateOfflineButtonState(offlineStatus, { count: parseInt(count), total: parseInt(total) });
+                if (navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({ action: 'request-status' });
+                }
             } else {
                 updateOfflineButtonState('ready');
             }
@@ -130,10 +130,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const registration = await navigator.serviceWorker.register(swPath);
             console.log('Service Worker зарегистрирован:', registration);
 
-            // Повторная проверка после регистрации SW
             if (offlineBtn && localStorage.getItem('offline-access-complete') === 'true') {
                 if (navigator.onLine) {
                     checkForUpdates();
+                }
+            } else if (navigator.serviceWorker.controller) {
+                if(localStorage.getItem('offline-status') === 'downloading') {
+                    navigator.serviceWorker.controller.postMessage({ action: 'request-status' });
                 }
             }
 

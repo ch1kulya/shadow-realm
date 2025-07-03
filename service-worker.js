@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shadow-slave-cache-v6';
+const CACHE_NAME = 'shadow-slave-cache-v7';
 const CORE_ASSETS = [
     '/',
     '/assets/css/style.css',
@@ -13,6 +13,9 @@ const CORE_ASSETS = [
 const FONT_ASSETS = [
     'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&family=Merriweather:wght@400;700&display=swap'
 ];
+
+let cachingQueue = [];
+let isCaching = false;
 
 async function broadcastMessage(message) {
     const clients = await self.clients.matchAll({
@@ -50,6 +53,37 @@ async function safeCacheAdd(cache, request) {
         console.error(`Service Worker: Caching failed for ${request.url || request}`, error);
     }
     return false;
+}
+
+async function processCachingQueue() {
+    if (isCaching || cachingQueue.length === 0) {
+        return;
+    }
+    isCaching = true;
+
+    const cache = await caches.open(CACHE_NAME);
+    const initialTotal = (await cache.keys()).length + cachingQueue.length;
+
+    while (cachingQueue.length > 0) {
+        const urlToCache = cachingQueue.shift(); // Берем первый элемент и удаляем из очереди
+        await safeCacheAdd(cache, new Request(urlToCache));
+        
+        const currentCachedCount = initialTotal - cachingQueue.length;
+        
+        // Отправляем прогресс не слишком часто
+        if (cachingQueue.length % 5 === 0 || cachingQueue.length === 0) {
+            broadcastMessage({
+                type: 'caching-progress',
+                count: currentCachedCount,
+                total: initialTotal
+            });
+        }
+    }
+    
+    isCaching = false;
+    console.log('Service Worker: Caching queue processed.');
+    const totalSize = await calculateCacheSize(cache);
+    broadcastMessage({ type: 'caching-finished', totalSize });
 }
 
 self.addEventListener('install', (event) => {
@@ -117,83 +151,61 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.action === 'cache-all') {
-        console.log('Service Worker: Received "cache-all" message.');
-        event.waitUntil(
-            caches.open(CACHE_NAME).then(async (cache) => {
-                try {
-                    const response = await fetch('/assets/js/chapters.json');
-                    const chapters = await response.json();
-                    const chapterUrls = chapters.map(chapter => chapter.url);
-                    
-                    broadcastMessage({ type: 'caching-started', total: chapterUrls.length });
-                    
-                    let cachedCount = 0;
-                    const totalCount = chapterUrls.length;
+    if (event.data && event.data.action) {
+        switch (event.data.action) {
+            case 'cache-all':
+                console.log('Service Worker: Received "cache-all" message.');
+                event.waitUntil(
+                    caches.open(CACHE_NAME).then(async (cache) => {
+                        try {
+                            const response = await fetch('/assets/js/chapters.json');
+                            const chapters = await response.json();
+                            const chapterUrls = chapters.map(chapter => new URL(chapter.url, self.location.origin).href);
+                            
+                            const requestsInCache = await cache.keys();
+                            const urlsInCache = requestsInCache.map(req => req.url);
 
-                    for (const url of chapterUrls) {
-                        const isCached = await cache.match(url);
-                        if (!isCached) {
-                           await safeCacheAdd(cache, new Request(url));
+                            cachingQueue = chapterUrls.filter(url => !urlsInCache.includes(url));
+                            
+                            if (cachingQueue.length === 0) {
+                                console.log('Service Worker: Everything is already cached.');
+                                const totalSize = await calculateCacheSize(cache);
+                                broadcastMessage({ type: 'caching-finished', totalSize });
+                                return;
+                            }
+                            
+                            const totalToCache = (await cache.keys()).length + cachingQueue.length;
+                            broadcastMessage({ type: 'caching-started', total: totalToCache });
+                            processCachingQueue();
+
+                        } catch (error) {
+                            console.error('Service Worker: Failed to fetch and cache chapters.', error);
+                            broadcastMessage({ type: 'caching-error', error: error.message });
                         }
-                        cachedCount++;
-                        if (cachedCount % 10 === 0 || cachedCount === totalCount) {
-                            broadcastMessage({ type: 'caching-progress', count: cachedCount, total: totalCount });
-                        }
-                    }
+                    })
+                );
+                break;
 
-                    console.log('Service Worker: All chapters cached.');
-                    const totalSize = await calculateCacheSize(cache);
-                    broadcastMessage({ type: 'caching-finished', totalSize });
+            case 'check-for-updates': // Этот кейс можно объединить с 'cache-all'
+                console.log('Service Worker: Received "check-for-updates", treating as "cache-all".');
+                self.dispatchEvent(new ExtendableMessageEvent('message', { data: { action: 'cache-all' }}));
+                break;
 
-                } catch (error) {
-                    console.error('Service Worker: Failed to fetch and cache chapters.', error);
-                    broadcastMessage({ type: 'caching-error', error: error.message });
+            case 'request-status':
+                console.log('Service Worker: Received status request.');
+                if (isCaching) {
+                    caches.open(CACHE_NAME).then(async (cache) => {
+                         const initialTotal = (await cache.keys()).length + cachingQueue.length;
+                         const currentCachedCount = initialTotal - cachingQueue.length;
+                         broadcastMessage({
+                             type: 'caching-progress',
+                             count: currentCachedCount,
+                             total: initialTotal
+                         });
+                    });
                 }
-            })
-        );
-    }
-
-    if (event.data && event.data.action === 'check-for-updates') {
-        console.log('Service Worker: Received "check-for-updates" message.');
-        event.waitUntil(
-            caches.open(CACHE_NAME).then(async (cache) => {
-                try {
-                    const networkChaptersResponse = await fetch('/assets/js/chapters.json');
-                    const networkChapters = await networkChaptersResponse.json();
-                    const networkUrls = networkChapters.map(c => new URL(c.url, self.location.origin).href);
-
-                    const cachedRequests = await cache.keys();
-                    const cachedUrls = cachedRequests.map(r => r.url);
-                    
-                    const newUrlsToCache = networkUrls.filter(url => !cachedUrls.includes(url));
-
-                    if (newUrlsToCache.length === 0) {
-                        console.log('Service Worker: Content is up to date.');
-                        const totalSize = await calculateCacheSize(cache);
-                        broadcastMessage({ type: 'update-finished', upToDate: true, totalSize });
-                        return;
-                    }
-
-                    broadcastMessage({ type: 'update-started', total: newUrlsToCache.length });
-
-                    let updatedCount = 0;
-                    for (const url of newUrlsToCache) {
-                        await safeCacheAdd(cache, new Request(url));
-                        updatedCount++;
-                        broadcastMessage({ type: 'update-progress', count: updatedCount, total: newUrlsToCache.length });
-                    }
-                    
-                    console.log('Service Worker: Update complete.');
-                    const totalSize = await calculateCacheSize(cache);
-                    broadcastMessage({ type: 'update-finished', upToDate: false, totalSize });
-                } catch (error) {
-                    console.error('Service Worker: Update check failed.', error);
-                    broadcastMessage({ type: 'update-error', error: error.message });
-                }
-            })
-        );
+                break;
+        }
     }
 }); 
