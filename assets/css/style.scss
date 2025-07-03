@@ -1,0 +1,865 @@
+---
+---
+// Импортируем шрифты из Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&family=Merriweather:wght@400;700&display=swap');
+
+/* 
+  Lora - элегантный шрифт с засечками для основного текста.
+  Inter - чистый шрифт без засечек для интерфейса.
+*/
+
+.no-transitions * {
+    transition: none !important;
+}
+
+:root {
+    // Цветовая схема (светлая тема по умолчанию)
+    --bg-color: #fdfaf1;
+    --text-color: #3d3a35;
+    --primary-color: #7a6a5b; // Для акцентов, кнопок
+    --panel-bg-color: #f6f1e7;
+    --border-color: #e5e0d7;
+
+    // Переменные для шрифтов
+    --font-family-lora: 'Lora', serif;
+    --font-family-inter: 'Inter', sans-serif;
+    --font-family-roboto: 'Roboto', sans-serif;
+    --font-family-merriweather: 'Merriweather', serif;
+    
+    /* Алиасы для обратной совместимости */
+    --font-family-serif: var(--font-family-lora);
+    --font-family-sans-serif: var(--font-family-inter);
+    
+    // Начальные значения для настроек
+    --reader-font-size: 18px;
+    --reader-line-height: 1.7;
+    --reader-text-align: left;
+    --reader-paragraph-indent: 0rem;
+    --reader-font-family: var(--font-family-lora);
+}
+
+:root.dark-theme {
+    // Цветовая схема (темная тема)
+    --bg-color: #242220;
+    --text-color: #c8c3b9;
+    --primary-color: #928373;
+    --panel-bg-color: #2a2826;
+    --border-color: #403d39;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family-inter);
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Стили для главной страницы */
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 100vh;
+    text-align: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.welcome-center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title-container {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.welcome-container h1 {
+    font-family: var(--font-family-lora);
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.subtitle {
+    font-family: var(--font-family-inter);
+    font-size: 1.1rem;
+    opacity: 0.6;
+    font-weight: 400;
+}
+
+.description {
+    font-family: var(--font-family-serif);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 550px;
+    margin-bottom: 2.5rem;
+    opacity: 0.8;
+}
+
+.description p {
+    margin: 0;
+}
+
+.stats-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    font-family: var(--font-family-inter);
+    background-color: var(--panel-bg-color);
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 0;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #28a745;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+.welcome-container p {
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin-bottom: 2rem;
+}
+
+.btn-start-reading {
+    display: inline-block;
+    background-color: var(--panel-bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family-inter);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 1rem 2.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 0;
+}
+
+.btn-start-reading:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-footer {
+    position: relative; /* Изменено с absolute */
+    bottom: auto;
+    font-size: 0.9rem;
+    width: 100%;
+    text-align: center;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+.welcome-footer a {
+    color: var(--text-color);
+    text-decoration: none;
+    opacity: 0.7;
+    margin: 0 0.5rem;
+    transition: opacity 0.2s ease;
+}
+
+.welcome-footer a:not(:last-child)::after {
+    content: '|';
+    color: var(--text-color);
+    opacity: 0.5;
+    margin-left: 1rem;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .welcome-container h1 {
+        font-size: 2.5rem;
+    }
+    .description {
+        font-size: 0.95rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-container {
+        padding: 2rem 1.5rem;
+    }
+    .title-container {
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .welcome-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .welcome-footer a {
+        margin: 0;
+    }
+
+    .welcome-footer a:not(:last-child)::after {
+        content: '';
+        margin-left: 0;
+    }
+}
+
+.welcome-footer a:hover {
+    opacity: 1;
+}
+
+/* --- Стили для читалки --- */
+.reader-container {
+    padding-top: 80px; /* Высота хедера */
+}
+
+.reader-header {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    
+    background-color: var(--panel-bg-color);
+    border: 1px solid var(--border-color);
+    z-index: 100;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s; /* Анимация появления/исчезновения */
+    overflow: hidden; /* Скрываем все, что выходит за пределы скругленных углов */
+}
+
+.reader-header.hidden {
+    transform: translate(-50%, -150%); /* Сдвигаем хедер вверх за экран */
+}
+
+.reader-header.panel-active {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.header-buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 60px;
+}
+
+:root.dark-theme .reader-header {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    fill: var(--text-color);
+}
+
+.header-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-family: var(--font-family-inter);
+    font-size: 1rem;
+    cursor: pointer;
+    flex-grow: 1;
+    height: 100%;
+    transition: background-color 0.2s ease;
+    display: flex; /* Для центрирования иконок */
+    justify-content: center; /* Для центрирования иконок */
+    align-items: center; /* Для центрирования иконок */
+}
+
+.header-btn:hover {
+    background-color: rgba(0,0,0,0.05);
+    fill: var(--text-color);
+}
+
+.header-btn + .header-btn {
+    border-left: 1px solid var(--border-color);
+}
+
+.header-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--text-color);
+}
+
+.header-btn.active {
+    background-color: rgba(0,0,0,0.1);
+}
+
+.bookmark-icon-filled {
+    display: none; /* Скрыта по умолчанию */
+}
+
+#bookmark-btn.bookmarked .bookmark-icon-outline {
+    display: none;
+}
+#bookmark-btn.bookmarked .bookmark-icon-filled {
+    display: block;
+    fill: var(--text-color);
+}
+
+.reader-main {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 1rem 70px;
+}
+
+.chapter-content {
+    font-family: var(--reader-font-family);
+    font-size: var(--reader-font-size);
+    line-height: var(--reader-line-height);
+    text-align: var(--reader-text-align);
+}
+
+.chapter-content h1 {
+    font-family: var(--font-family-lora);
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.chapter-content p {
+    text-indent: var(--reader-paragraph-indent);
+    margin-bottom: 0.5em;
+}
+
+.chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    font-family: var(--font-family-inter);
+}
+.chapter-nav a {
+    color: var(--primary-color);
+    text-decoration: none;
+    max-width: 45%;
+}
+.nav-next { text-align: right; }
+
+/* Стили оверлея */
+.panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.1);
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+.panel-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Новые стили для панелей, вытекающих из хедера */
+#panels-container {
+    height: 0; /* Используем height для анимирования */
+    transition: height 0.35s ease-in-out;
+    border-top: 1px solid transparent;
+}
+
+#panels-container.visible {
+    height: 40vh; /* Фиксированная высота для всех панелей */
+    border-top-color: var(--border-color);
+}
+
+.panel {
+    display: none;
+    padding: 1rem;
+    padding-top: 0.5rem;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+.panel.active {
+    display: block;
+    animation: panel-show 0.3s ease-out forwards;
+}
+
+.panel.closing {
+    animation: panel-hide 0.2s ease-in forwards;
+}
+
+@keyframes panel-show {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes panel-hide {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-15px); }
+}
+
+/* Стили для панели содержания */
+.panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.setting-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    opacity: 0.8;
+    padding-left: 0.2rem;
+}
+
+.setting-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.setting-row .settings-group {
+    margin: 0;
+}
+
+/* --- Стили для иконок-переключателей --- */
+.icon-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.icon-group button {
+    flex-grow: 1; 
+    height: 38px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 0.9rem;
+    font-family: var(--font-family-inter);
+    font-weight: 500;
+}
+
+.icon-group button.active {
+    background: var(--primary-color);
+    color: var(--bg-color);
+    border-color: var(--primary-color);
+}
+.icon-group button svg {
+    stroke: currentColor;
+}
+
+/* --- Стили для ползунка --- */
+.slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.font-size-label-sm { font-size: 0.8em; opacity: 0.7; }
+.font-size-label-lg { font-size: 1.2em; opacity: 0.7; }
+
+.slider-wrapper input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--border-color);
+    border-radius: 1px;
+    outline: none;
+    flex-grow: 1;
+}
+
+.slider-wrapper input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--primary-color);
+    cursor: pointer;
+    border-radius: 50%;
+    border: 4px solid var(--panel-bg-color);
+    box-shadow: 0 0 0 1px var(--border-color);
+    margin-top: -1px; /* Визуальная коррекция положения */
+}
+:root.dark-theme .slider-wrapper input[type="range"]::-webkit-slider-thumb {
+    border-color: var(--panel-bg-color);
+}
+
+.slider-wrapper input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--primary-color);
+    cursor: pointer;
+    border-radius: 50%;
+    border: 4px solid var(--panel-bg-color);
+    box-shadow: 0 0 0 1px var(--border-color);
+}
+:root.dark-theme .slider-wrapper input[type="range"]::-moz-range-thumb {
+    border-color: var(--panel-bg-color);
+}
+
+/* --- Кружки выбора темы --- */
+.theme-options {
+    display:flex;
+    gap:0.75rem;
+    align-items: center;
+    height: 38px;
+}
+
+.theme-circle {
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    border:2px solid var(--border-color);
+    cursor:pointer;
+    background-color:#fff;
+    padding:0; /* для единообразия */
+}
+.theme-circle.dark { background:#000; }
+.theme-circle.light { background:#fff; }
+.theme-circle.active { border-color: var(--primary-color); }
+
+/* --- Селект шрифтов --- */
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+.font-select {
+    width: 100%;
+    padding: 0.6rem 2rem 0.6rem 0.8rem;
+    appearance: none;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.custom-select-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--text-color);
+  pointer-events: none;
+  opacity: 0.7;
+}
+.font-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+.font-select option { 
+    background: var(--panel-bg-color); 
+    color: var(--text-color);
+}
+
+/* --- Ползунок размера шрифта --- */
+.setting-item.range-slider input[type="range"],
+.setting-item.range-slider input[type="range"]::-webkit-slider-thumb,
+.setting-item.range-slider input[type="range"]::-moz-range-thumb {
+    display: none;
+}
+
+/* Удаляем старые стили, которые больше не нужны */
+.settings-grid, .setting-item, .setting-item > svg { display: none; }
+
+/* Новая плавающая навигация */
+.floating-nav {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 50;
+    pointer-events: none; /* Клики проходят сквозь контейнер */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.floating-nav.visible,
+.floating-nav.end-reached {
+    opacity: 1;
+}
+
+.floating-nav.end-reached .nav-arrow {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.nav-arrow {
+    width: 60px;
+    height: 60px;
+    background-color: var(--panel-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: all;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.nav-arrow:hover {
+    transform: scale(1.1);
+}
+
+.nav-arrow svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--text-color);
+}
+
+/* --- Стили для подсказки --- */
+.hint-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.hint-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.hint-box {
+    background: var(--panel-bg-color);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 320px;
+}
+
+.hint-box h3 {
+    margin-top: 0;
+}
+
+#dismiss-hint-btn {
+    background: var(--primary-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+/* Стилизация скроллбара */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-color);
+}
+
+.reader-footer {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.25;
+    margin-top: 0rem;
+    margin-bottom: 2.5rem;
+    user-select: none;
+    pointer-events: none;
+}
+
+.toc-bookmark-icon {
+    flex-shrink: 0;
+    opacity: 0.5;
+    margin-left: auto;
+    padding-left: 0.5rem;
+}
+
+/* Стили для панели настроек (переработанные) */
+#settings-panel .panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+#toc-panel .panel-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden; /* Предотвращаем любые выступы */
+}
+
+.toc-controls {
+    flex-shrink: 0;
+    position: relative;
+    padding: 0.5rem;
+}
+
+.toc-controls .search-input {
+    width: 100%;
+    box-sizing: border-box; /* Учитываем padding и border в ширине */
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-color);
+    border-radius: 8px;
+    padding: 0.55rem 2.5rem 0.55rem 0.9rem;
+    font-size: 0.9rem;
+}
+
+.toc-controls .sort-btn {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.6;
+}
+.toc-controls .sort-btn:hover {
+    background-color: rgba(0,0,0,0.04);
+}
+
+.chapters-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0 0.5rem 0.5rem;
+    list-style: none;
+}
+
+.chapters-list li.current a {
+    background-color: rgba(0,0,0,0.02);
+}
+
+:root.dark-theme .chapters-list li.current a {
+    background-color: rgba(255,255,255,0.04);
+}
+
+.chapters-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.5rem;
+    text-decoration: none;
+    color: var(--text-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.chapters-list a:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.chapter-num {
+    opacity: 0.6;
+    min-width: 2.5em;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.chapter-title {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Стили для доп. страниц --- */
+.page-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 2rem;
+}
+
+.page-container h1 {
+    font-family: var(--font-family-lora);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.page-container p, .page-container li {
+    line-height: 1.8;
+}
+
+.btn-back {
+    display: inline-block;
+    margin-top: 3rem;
+    text-decoration: none;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.btn-back:hover {
+    opacity: 1;
+} 
