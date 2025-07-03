@@ -13,19 +13,38 @@
   
   <script>
     (function() {
+        document.documentElement.classList.add('no-transitions');
+
         try {
-            const savedSettings = localStorage.getItem('readerSettings');
+            let settings = {
+                theme: 'light',
+                font: 'lora',
+                'font-size': '18',
+                align: 'left',
+                indent: '0'
+            };
+
+            const savedSettings = JSON.parse(localStorage.getItem('readerSettings'));
+
             if (savedSettings) {
-                // Если настройки есть, применяем сохраненную тему
-                if (JSON.parse(savedSettings).theme === 'dark') {
-                    document.documentElement.classList.add('dark-theme');
+                Object.assign(settings, savedSettings);
+            } else {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    settings.theme = 'dark';
                 }
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                // Иначе, если настроек нет, смотрим на системную тему
+            }
+
+            if (settings.theme === 'dark') {
                 document.documentElement.classList.add('dark-theme');
             }
-        } catch (e) { /* Ошибка игнорируется */ }
-        document.documentElement.classList.add('no-transitions');
+
+            const root = document.documentElement;
+            root.style.setProperty('--reader-font-family', `var(--font-family-${settings.font})`);
+            root.style.setProperty('--reader-font-size', `${settings['font-size']}px`);
+            root.style.setProperty('--reader-text-align', settings.align);
+            root.style.setProperty('--reader-paragraph-indent', `${settings.indent}rem`);
+
+        } catch (e) { /* Намеренно оставлено пустым */ }
     })();
   </script>
 </head>

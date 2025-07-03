@@ -71,7 +71,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    min-height: 100vh;
+    min-height: 100dvh;
     text-align: center;
     padding: 2rem;
     box-sizing: border-box;
@@ -475,15 +475,15 @@ body {
     align-items: center;
     cursor: pointer;
     color: var(--text-color);
-    transition: background-color 0.2s, border-color 0.2s;
+    transition: background-color 0.2s, border-color 0.2s, border-width 0.2s;
     font-size: 0.9rem;
     font-family: var(--font-family-inter);
     font-weight: 500;
+    box-sizing: border-box; /* Предотвращает смещение при изменении рамки */
 }
 
 .icon-group button.active {
-    background: var(--primary-color);
-    color: var(--bg-color);
+    border-width: 2px;
     border-color: var(--primary-color);
 }
 .icon-group button svg {

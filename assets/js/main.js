@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.classList.remove('no-transitions');
     });
 
-    // Загружаем главы заранее
-    loadChapters();
-
     const readerContainer = document.querySelector('.reader-container');
     
-    if (!readerContainer) {
+    // Загружаем главы только если мы на странице читалки
+    if (readerContainer) {
+        loadChapters();
+    } else {
         return;
     }
 
@@ -73,39 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadSettings() {
-        // Загружаем сохраненные настройки
+        // Загружаем сохраненные настройки или используем пустой объект
         const savedSettings = JSON.parse(localStorage.getItem('readerSettings')) || {};
-        // Применяем их поверх настроек по умолчанию
+        // Обновляем глобальный объект настроек в JS
         Object.assign(settings, savedSettings);
     
-        // Если тема не была сохранена пользователем, определяем ее по текущему состоянию
-        // (которое было установлено инлайн-скриптом из системных настроек)
+        // Если тема не была сохранена, определяем ее из DOM (установлено инлайн-скриптом)
         if (!savedSettings.theme) {
             settings.theme = document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
         }
     
-        // Применяем все настройки к DOM (без сохранения в localStorage)
-        for (const [key, val] of Object.entries(settings)) {
-            switch(key) {
-                case 'theme':
-                    document.documentElement.classList.toggle('dark-theme', val === 'dark');
-                    break;
-                case 'font':
-                    root.style.setProperty('--reader-font-family', `var(--font-family-${val})`);
-                    break;
-                case 'font-size':
-                    root.style.setProperty('--reader-font-size', `${val}px`);
-                    break;
-                case 'align':
-                    root.style.setProperty('--reader-text-align', val);
-                    break;
-                case 'indent':
-                    root.style.setProperty('--reader-paragraph-indent', `${val}rem`);
-                    break;
-            }
-        }
-        
-        // Обновляем состояние контролов в панели настроек
+        // Синхронизируем контролы в панели с текущими настройками
         updateControls();
     }
 
