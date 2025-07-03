@@ -1,17 +1,17 @@
-const CACHE_NAME = 'shadow-slave-cache-v7';
-const CORE_ASSETS = [
+const STATIC_CACHE = 'static-v1'; // Увеличивайте при изменении CSS/JS
+const CHAPTERS_CACHE = 'chapters-cache'; // Постоянный кеш глав, не меняется
+
+const STATIC_ASSETS = [
     '/',
     '/assets/css/style.css',
     '/assets/js/main.js',
-    '/assets/js/chapters.json',
     '/favicon.webp',
-    '/translators',
-    '/dmca',
-    '/rights',
-    '/404.html'
+    '/404.html',
+    '/robots.txt',
 ];
+
 const FONT_ASSETS = [
-    'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&family=Merriweather:wght@400;700&display=swap'
+    'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700&family=Inter:wght@400;500;700&display=swap',
 ];
 
 let cachingQueue = [];
@@ -61,7 +61,7 @@ async function processCachingQueue() {
     }
     isCaching = true;
 
-    const cache = await caches.open(CACHE_NAME);
+    const cache = await caches.open(CHAPTERS_CACHE);
     const initialTotal = (await cache.keys()).length + cachingQueue.length;
 
     while (cachingQueue.length > 0) {
@@ -86,67 +86,57 @@ async function processCachingQueue() {
     broadcastMessage({ type: 'caching-finished', totalSize });
 }
 
-self.addEventListener('install', (event) => {
-    console.log('Service Worker: Installing...');
+self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(async (cache) => {
-            console.log('Service Worker: Caching core and font assets');
-            const allCoreAssets = [...CORE_ASSETS, ...FONT_ASSETS];
-            const promises = allCoreAssets.map(asset => safeCacheAdd(cache, asset));
-            await Promise.all(promises);
-            console.log('Service Worker: Initial assets cached.');
-            return self.skipWaiting();
-        }).catch(error => {
-            console.error('Service Worker: Installation failed', error);
+        caches.open(STATIC_CACHE).then(cache => {
+            return cache.addAll([...STATIC_ASSETS, ...FONT_ASSETS]);
         })
     );
 });
 
-self.addEventListener('activate', (event) => {
-    console.log('Service Worker: Activating...');
+self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
+        caches.keys().then(keys => {
             return Promise.all(
-                cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
+                keys.filter(key => key.startsWith('static-') && key !== STATIC_CACHE)
+                    .map(oldKey => caches.delete(oldKey))
             );
-        }).then(() => {
-            console.log('Service Worker: Old caches deleted.');
-            return self.clients.claim();
-        })
+        }).then(() => self.clients.claim())
     );
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
     if (event.request.method !== 'GET') return;
 
+    const { url } = event.request;
+
+    if (url.includes('/chapters/')) {
+        // Главы – только из CHAPTERS_CACHE (offline-first)
+        event.respondWith(
+            caches.open(CHAPTERS_CACHE).then(async cache => {
+                const cached = await cache.match(event.request);
+                if (cached) return cached;
+                try {
+                    const netRes = await fetch(event.request);
+                    cache.put(event.request, netRes.clone());
+                    return netRes;
+                } catch (_) {
+                    return cached; // fallback если сети нет и страницы не было
+                }
+            })
+        );
+        return;
+    }
+
+    // Статика – Stale-while-revalidate из STATIC_CACHE
     event.respondWith(
-        caches.open(CACHE_NAME).then(async (cache) => {
-            const cachedResponse = await cache.match(event.request);
-
-            const fetchPromise = fetch(event.request).then((networkResponse) => {
-                // Если запрос к сторонним ресурсам (шрифты), то просто возвращаем ответ
-                if (!event.request.url.startsWith(self.location.origin)) {
-                    // Кэшируем шрифты и их CSS
-                     if (event.request.url.includes('fonts.gstatic.com') || event.request.url.includes('fonts.googleapis.com')) {
-                        cache.put(event.request, networkResponse.clone());
-                    }
-                    return networkResponse;
-                }
-                
-                // Для своих ресурсов - обновляем кэш
-                cache.put(event.request, networkResponse.clone());
-                return networkResponse;
-            }).catch(async () => {
-                // Если сеть недоступна, возвращаем из кэша.
-                // Если в кэше ничего нет, для навигации показываем 404.
-                if (event.request.mode === 'navigate') {
-                    return await cache.match('/404.html');
-                }
-                return cachedResponse; // Для других запросов (изображения и т.д.) вернет undefined
-            });
-
-            // Возвращаем из кэша сразу (Stale-While-Revalidate), если есть, и параллельно обновляем
-            return cachedResponse || fetchPromise;
+        caches.open(STATIC_CACHE).then(async cache => {
+            const cached = await cache.match(event.request);
+            const fetchPromise = fetch(event.request).then(res => {
+                cache.put(event.request, res.clone());
+                return res;
+            }).catch(_ => cached);
+            return cached || fetchPromise;
         })
     );
 });
@@ -157,7 +147,7 @@ self.addEventListener('message', (event) => {
             case 'cache-all':
                 console.log('Service Worker: Received "cache-all" message.');
                 event.waitUntil(
-                    caches.open(CACHE_NAME).then(async (cache) => {
+                    caches.open(CHAPTERS_CACHE).then(async (cache) => {
                         try {
                             const response = await fetch('/assets/js/chapters.json');
                             const chapters = await response.json();
@@ -195,7 +185,7 @@ self.addEventListener('message', (event) => {
             case 'request-status':
                 console.log('Service Worker: Received status request.');
                 if (isCaching) {
-                    caches.open(CACHE_NAME).then(async (cache) => {
+                    caches.open(CHAPTERS_CACHE).then(async (cache) => {
                          const initialTotal = (await cache.keys()).length + cachingQueue.length;
                          const currentCachedCount = initialTotal - cachingQueue.length;
                          broadcastMessage({
