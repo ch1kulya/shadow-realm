@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const panelToClose = document.getElementById(activePanelId);
         const btnToDeactivate = document.querySelector(`.header-btn[data-panel-id="${activePanelId}"]`);
 
-        panelToClose.classList.add('closing');
+        if (panelToClose) panelToClose.classList.add('closing');
         if (btnToDeactivate) btnToDeactivate.classList.remove('active');
         
         setTimeout(() => {
@@ -103,8 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
             panelsContainer.classList.remove('visible');
             overlay.classList.remove('active');
             
-            panelToClose.classList.remove('active');
-            panelToClose.classList.remove('closing');
+            if (panelToClose) {
+                panelToClose.classList.remove('active', 'closing');
+            }
 
             activePanelId = null;
             isPanelAnimating = false;
