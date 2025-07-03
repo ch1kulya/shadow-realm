@@ -1,0 +1,17 @@
+title: Теневой раб
+
+description: >-
+  Читайте все главы новеллы Shadow Slave на русском языке.
+
+# theme: jekyll-theme-minimal
+
+collections:
+  chapters:
+    output: true
+    permalink: /chapters/:name/
+    sort_by: name
+
+sass:
+  load_paths:
+    - _sass
+    - assets/css 
