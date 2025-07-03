@@ -1,9 +1,13 @@
 title: Теневой раб
 url: "https://shadowslave.ru"
 baseurl: ""
+author: Guiltythree
 
 description: >-
   Читайте все главы новеллы Shadow Slave на русском языке.
+
+plugins:
+  - jekyll-seo-tag
 
 # theme: jekyll-theme-minimal
 

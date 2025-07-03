@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Теневой раб
+title: Главная
 ---
 <div class="welcome-container">
   <div class="stats-container">
