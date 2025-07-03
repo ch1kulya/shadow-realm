@@ -8,6 +8,7 @@ description: >-
 
 plugins:
   - jekyll-seo-tag
+  - jekyll-sitemap
 
 # theme: jekyll-theme-minimal
 
