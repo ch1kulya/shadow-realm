@@ -86,6 +86,33 @@ async function processCachingQueue() {
     broadcastMessage({ type: 'caching-finished', totalSize });
 }
 
+async function cacheAll() {
+    const cache = await caches.open(CHAPTERS_CACHE);
+    try {
+        const response = await fetch('/assets/js/chapters.json');
+        const chapters = await response.json();
+        const chapterUrls = chapters.map(ch => new URL(ch.url, self.location.origin).href);
+
+        const cachedRequests = await cache.keys();
+        const urlsInCache = cachedRequests.map(r => r.url);
+
+        cachingQueue = chapterUrls.filter(u => !urlsInCache.includes(u));
+
+        if (cachingQueue.length === 0) {
+            const totalSize = await calculateCacheSize(cache);
+            broadcastMessage({ type: 'caching-finished', totalSize });
+            return;
+        }
+        const totalToCache = urlsInCache.length + cachingQueue.length;
+        broadcastMessage({ type: 'caching-started', total: totalToCache });
+        await processCachingQueue();
+    } catch (err) {
+        console.error('Service Worker: cacheAll failed', err);
+        broadcastMessage({ type: 'caching-error', error: err.message });
+        throw err;
+    }
+}
+
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(STATIC_CACHE).then(cache => {
@@ -142,60 +169,26 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.action) {
-        switch (event.data.action) {
-            case 'cache-all':
-                console.log('Service Worker: Received "cache-all" message.');
-                event.waitUntil(
-                    caches.open(CHAPTERS_CACHE).then(async (cache) => {
-                        try {
-                            const response = await fetch('/assets/js/chapters.json');
-                            const chapters = await response.json();
-                            const chapterUrls = chapters.map(chapter => new URL(chapter.url, self.location.origin).href);
-                            
-                            const requestsInCache = await cache.keys();
-                            const urlsInCache = requestsInCache.map(req => req.url);
+    if (!(event.data && event.data.action)) return;
 
-                            cachingQueue = chapterUrls.filter(url => !urlsInCache.includes(url));
-                            
-                            if (cachingQueue.length === 0) {
-                                console.log('Service Worker: Everything is already cached.');
-                                const totalSize = await calculateCacheSize(cache);
-                                broadcastMessage({ type: 'caching-finished', totalSize });
-                                return;
-                            }
-                            
-                            const totalToCache = (await cache.keys()).length + cachingQueue.length;
-                            broadcastMessage({ type: 'caching-started', total: totalToCache });
-                            processCachingQueue();
-
-                        } catch (error) {
-                            console.error('Service Worker: Failed to fetch and cache chapters.', error);
-                            broadcastMessage({ type: 'caching-error', error: error.message });
-                        }
-                    })
-                );
-                break;
-
-            case 'check-for-updates': // Этот кейс можно объединить с 'cache-all'
-                console.log('Service Worker: Received "check-for-updates", treating as "cache-all".');
-                self.dispatchEvent(new ExtendableMessageEvent('message', { data: { action: 'cache-all' }}));
-                break;
-
-            case 'request-status':
-                console.log('Service Worker: Received status request.');
-                if (isCaching) {
-                    caches.open(CHAPTERS_CACHE).then(async (cache) => {
-                         const initialTotal = (await cache.keys()).length + cachingQueue.length;
-                         const currentCachedCount = initialTotal - cachingQueue.length;
-                         broadcastMessage({
-                             type: 'caching-progress',
-                             count: currentCachedCount,
-                             total: initialTotal
-                         });
-                    });
-                }
-                break;
-        }
+    switch(event.data.action) {
+        case 'cache-all':
+            event.waitUntil(cacheAll());
+            break;
+        case 'check-for-updates':
+            // Просто пытаемся докачать недостающие главы
+            if (navigator.onLine) {
+                event.waitUntil(cacheAll());
+            }
+            break;
+        case 'request-status':
+            if (isCaching) {
+                caches.open(CHAPTERS_CACHE).then(async cache => {
+                    const initialTotal = (await cache.keys()).length + cachingQueue.length;
+                    const currentCachedCount = initialTotal - cachingQueue.length;
+                    broadcastMessage({ type: 'caching-progress', count: currentCachedCount, total: initialTotal });
+                });
+            }
+            break;
     }
 }); 
