@@ -298,29 +298,28 @@ body {
     cursor: pointer;
     flex-grow: 1;
     height: 100%;
-    transition: background-color 0.2s ease;
-    display: flex; /* Для центрирования иконок */
-    justify-content: center; /* Для центрирования иконок */
-    align-items: center; /* Для центрирования иконок */
-}
-
-.header-btn:hover {
-    background-color: rgba(0,0,0,0.05);
-    fill: var(--text-color);
-}
-
-.header-btn + .header-btn {
-    border-left: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .header-btn svg {
     width: 24px;
     height: 24px;
     stroke: var(--text-color);
+    transition: transform 0.2s ease;
 }
 
-.header-btn.active {
-    background-color: rgba(0,0,0,0.1);
+.header-btn:hover svg {
+    transform: scale(1.1);
+}
+
+.header-btn:active svg {
+    transform: scale(0.9);
+}
+
+.header-btn + .header-btn {
+    border-left: 1px solid var(--border-color);
 }
 
 .bookmark-icon-filled {
