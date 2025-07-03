@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             activePanelId = null;
             isPanelAnimating = false;
-        }, 200); // Должно совпадать с временем анимации в CSS
+        }, 300); // Должно совпадать с временем анимации в CSS
     }
 
     function openPanel(panelId) {

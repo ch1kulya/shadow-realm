@@ -389,7 +389,7 @@ body {
 /* Новые стили для панелей, вытекающих из хедера */
 #panels-container {
     height: 0; /* Используем height для анимирования */
-    transition: height 0.35s ease-in-out;
+    transition: height 0.3s ease-in-out;
     border-top: 1px solid transparent;
 }
 
@@ -412,7 +412,7 @@ body {
 }
 
 .panel.closing {
-    animation: panel-hide 0.2s ease-in forwards;
+    animation: panel-hide 0.3s ease-in forwards;
 }
 
 @keyframes panel-show {
@@ -717,7 +717,7 @@ body {
     color: var(--text-color);
     opacity: 0.25;
     margin-top: 0rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 7.5rem;
     user-select: none;
     pointer-events: none;
 }
