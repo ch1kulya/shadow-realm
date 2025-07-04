@@ -613,7 +613,7 @@ body {
     z-index: 50;
     pointer-events: none; /* Клики проходят сквозь контейнер */
     opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.3s ease-in-out, bottom 0.005s linear;
 }
 
 .floating-nav.visible,
