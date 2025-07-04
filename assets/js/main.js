@@ -488,7 +488,25 @@ document.addEventListener('DOMContentLoaded', () => {
     loadBookmarks();
     updateBookmarkStatus();
 
+    const readerFooter = document.querySelector('.reader-footer');
+    function updateFloatingNavPosition() {
+        if (!floatingNav || !readerFooter) return;
+        const footerRect = readerFooter.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const defaultBottom = 24;
+        const extraOffset = -20;
+        if (footerRect.top >= windowHeight) {
+            floatingNav.style.bottom = defaultBottom + 'px';
+        } else {
+            const overlap = windowHeight - footerRect.bottom + extraOffset;
+            floatingNav.style.bottom = (overlap > defaultBottom ? overlap : defaultBottom) + 'px';
+        }
+    }
+    window.addEventListener('scroll', updateFloatingNavPosition);
+    window.addEventListener('resize', updateFloatingNavPosition);
+
     if (floatingNav) {
         floatingNav.classList.add('visible');
+        updateFloatingNavPosition();
     }
 }); 
