@@ -26,11 +26,11 @@ title: Главная
       <p>Главы еще не добавлены.</p>
     {% endif %}
   </div>
-
   <div class="welcome-footer">
     <a href="{{ '/translators' | relative_url }}">О переводчиках</a>
     <a href="{{ '/dmca' | relative_url }}">DMCA</a>
     <a href="{{ '/rights' | relative_url }}">Правообладателям</a>
+    <a href="{{ '/privacy' | relative_url }}">Политика конфиденциальности</a>
   </div>
 </div>
 <script>
