@@ -461,16 +461,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Логика скролла и подсказок ---
+    let scrollDirection = null; // Отслеживаем направление скролла
+    let scrollThreshold = 0; // Счетчик пикселей для порога
+
     function handleScroll() {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (scrollTop > lastScrollTop && scrollTop > 40) {
-            readerHeader.classList.add('hidden');
-            if (activePanelId) closePanel(); // Закрываем панель при скролле вниз
-            if (floatingNav) floatingNav.classList.remove('visible');
-        } else {
-            readerHeader.classList.remove('hidden');
-            if (floatingNav) floatingNav.classList.add('visible');
+        let currentDirection = scrollTop > lastScrollTop ? 'down' : 'up';
+        
+        // Проверяем, изменилось ли направление скролла
+        if (scrollDirection !== currentDirection) {
+            scrollDirection = currentDirection;
+            scrollThreshold = 0; // Сбрасываем счетчик при смене направления
         }
+        
+        // Увеличиваем счетчик только если скроллим в том же направлении
+        if (scrollDirection === currentDirection) {
+            scrollThreshold += Math.abs(scrollTop - lastScrollTop);
+        }
+        
+        // Применяем логику только после преодоления порога в 10 пикселей
+        if (scrollThreshold >= 10) {
+            if (scrollTop > lastScrollTop && scrollTop > 40) {
+                readerHeader.classList.add('hidden');
+                if (activePanelId) closePanel(); // Закрываем панель при скролле вниз
+                if (floatingNav) floatingNav.classList.remove('visible');
+            } else {
+                readerHeader.classList.remove('hidden');
+                if (floatingNav) floatingNav.classList.add('visible');
+            }
+        }
+        
         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     }
 
