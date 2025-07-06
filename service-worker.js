@@ -1,10 +1,11 @@
-const STATIC_CACHE = 'static-v9'; // Увеличивайте при изменении CSS/JS
+const STATIC_CACHE = 'static-v10'; // Увеличивайте при изменении CSS/JS
 const CHAPTERS_CACHE = 'chapters-cache'; // Постоянный кеш глав, не меняется
 
 const STATIC_ASSETS = [
     '/',
     '/assets/css/style.css',
     '/assets/js/main.js',
+    '/assets/js/router.js',
     '/favicon.webp',
     '/404.html',
     '/robots.txt',
