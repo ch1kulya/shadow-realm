@@ -449,12 +449,12 @@ body {
 /* Новые стили для панелей, вытекающих из хедера */
 #panels-container {
     height: 0; /* Используем height для анимирования */
-    transition: height 0.3s ease-in-out;
+    transition: height 0.2s ease-in-out;
     border-top: 1px solid transparent;
 }
 
 #panels-container.visible {
-    height: 37vh; /* Фиксированная высота для всех панелей */
+    /* Высоту выставляем динамически через JS */
     border-top-color: var(--border-color);
 }
 
@@ -468,11 +468,17 @@ body {
 }
 .panel.active {
     display: block;
-    animation: panel-show 0.3s ease-out forwards;
+    animation: panel-show 0.2s ease-out forwards;
 }
 
 .panel.closing {
-    animation: panel-hide 0.3s ease-in forwards;
+    animation: panel-hide 0.2s ease-in forwards;
+    overflow: hidden; /* Скрываем скроллбар во время закрытия */
+}
+
+/* Дополнительный класс для временного скрытия скроллбара во время анимаций */
+.panel-scroll-hidden {
+    overflow: hidden !important;
 }
 
 @keyframes panel-show {
@@ -482,6 +488,26 @@ body {
 @keyframes panel-hide {
     from { opacity: 1; transform: translateY(0); }
     to { opacity: 0; transform: translateY(-15px); }
+}
+
+/* --- Новые прозрачные анимации для переключения содержимого --- */
+@keyframes panel-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes panel-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.panel.fade-in {
+    animation: panel-fade-in 0.2s ease-out forwards;
+}
+
+.panel.fade-out {
+    animation: panel-fade-out 0.2s ease-in forwards;
+    overflow: hidden; /* Скрываем скроллбар во время анимации */
 }
 
 /* Стили для панели содержания */
@@ -1026,4 +1052,12 @@ body {
 
 .btn-full-width .icon-mr {
   margin-right: 0.5rem;
+}
+
+.panel.no-slide:not(.fade-in):not(.fade-out) { animation: none !important; }
+
+/* Скрываем частично видимые элементы в списке глав плавной маской */
+.chapters-list {
+    mask-image: linear-gradient(to bottom, transparent 0px, #000 8px, #000 calc(100% - 8px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 8px, #000 calc(100% - 8px), transparent 100%);
 } 

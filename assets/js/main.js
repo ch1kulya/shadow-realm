@@ -39,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let allChapters = [];
     let sortAscending = true;
     let lastScrollTop = 0;
+    // Скорость анимации панелей (должна совпадать со значением в CSS)
+    const PANEL_ANIMATION_DURATION = 200; // ms
 
     // --- Логика оффлайн-доступа ---
     const offlineBtn = document.getElementById('offline-download-btn');
@@ -257,27 +259,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Новая логика открытия/закрытия/переключения панелей ---
+    // Возвращает желаемую высоту (по содержимому панели настроек)
+    function getDesiredPanelHeight() {
+        const settingsPanel = document.getElementById('settings-panel');
+        if (!settingsPanel) return 0;
+
+        // Если панель уже активна — высота доступна напрямую
+        if (settingsPanel.classList.contains('active')) {
+            return settingsPanel.scrollHeight;
+        }
+
+        // Иначе временно показываем её невидимо для корректного измерения
+        const prevDisplay = settingsPanel.style.display;
+        const prevVisibility = settingsPanel.style.visibility;
+        settingsPanel.style.display = 'block';
+        settingsPanel.style.visibility = 'hidden';
+        const h = settingsPanel.scrollHeight;
+        settingsPanel.style.display = prevDisplay;
+        settingsPanel.style.visibility = prevVisibility;
+        return h;
+    }
+
+    function updatePanelsContainerHeight() {
+        const targetHeight = getDesiredPanelHeight();
+        if (!targetHeight) return;
+        panelsContainer.style.height = targetHeight + 'px';
+    }
+
     function closePanel() {
         if (!activePanelId || isPanelAnimating) return;
 
+        // Фиксируем текущую высоту, чтобы анимация схлопывания была плавной
+        panelsContainer.style.height = panelsContainer.offsetHeight + 'px';
+    
         isPanelAnimating = true;
         const panelToClose = document.getElementById(activePanelId);
         const btnToDeactivate = document.querySelector(`.header-btn[data-panel-id="${activePanelId}"]`);
-
-        panelToClose.classList.add('closing');
+        
+        panelToClose.classList.add('closing', 'panel-scroll-hidden');
         if (btnToDeactivate) btnToDeactivate.classList.remove('active');
         
+        // Следующим кадром начинаем схлопывать контейнер
+        requestAnimationFrame(() => { panelsContainer.style.height = '0px'; });
+
         setTimeout(() => {
             readerHeader.classList.remove('panel-active');
             panelsContainer.classList.remove('visible');
             overlay.classList.remove('active');
             
-            panelToClose.classList.remove('active');
-            panelToClose.classList.remove('closing');
+            panelToClose.classList.remove('active', 'closing', 'panel-scroll-hidden');
+
+            panelsContainer.style.height = '';
 
             activePanelId = null;
             isPanelAnimating = false;
-        }, 300); // Должно совпадать с временем анимации в CSS
+        }, PANEL_ANIMATION_DURATION);
     }
 
     function openPanel(panelId) {
@@ -295,7 +331,8 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.classList.add('active');
         }
         
-        document.getElementById(panelId).classList.add('active');
+        const panelElement = document.getElementById(panelId);
+        panelElement.classList.add('active', 'panel-scroll-hidden');
         const newBtn = document.querySelector(`.header-btn[data-panel-id="${panelId}"]`);
         if (newBtn) newBtn.classList.add('active');
         activePanelId = panelId;
@@ -312,11 +349,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollContainer.scrollTop = elementOffset - containerHeight / 2 + elementHeight / 2 - 165;
             }
         }
+
+        // Корректируем высоту контейнера под содержимое панели настроек
+        updatePanelsContainerHeight();
+
+        // Убираем скрытие скроллбара после завершения анимации
+        setTimeout(()=>{ panelElement.classList.remove('panel-scroll-hidden'); }, PANEL_ANIMATION_DURATION);
+    }
+
+    // Переключает панели с анимацией закрытия-открытия
+    function switchPanel(panelId) {
+        if (isPanelAnimating || !activePanelId || activePanelId === panelId) return;
+
+        isPanelAnimating = true;
+
+        const currentPanel = document.getElementById(activePanelId);
+        const nextPanel = document.getElementById(panelId);
+        if (!currentPanel || !nextPanel) { isPanelAnimating = false; return; }
+
+        const currentBtn = document.querySelector(`.header-btn[data-panel-id="${activePanelId}"]`);
+        const nextBtn = document.querySelector(`.header-btn[data-panel-id="${panelId}"]`);
+
+        if (currentBtn) currentBtn.classList.remove('active');
+        if (nextBtn) nextBtn.classList.add('active');
+
+        // Запускаем плавное исчезновение текущей панели
+        currentPanel.classList.add('fade-out', 'panel-scroll-hidden');
+
+        setTimeout(() => {
+            // Скрываем текущую панель
+            currentPanel.classList.remove('active', 'fade-out', 'panel-scroll-hidden');
+
+            // Показываем новую панель с fade-in
+            nextPanel.classList.add('active', 'fade-in', 'panel-scroll-hidden', 'no-slide');
+            activePanelId = panelId;
+
+            // Обновляем высоту контейнера (на основе панели настроек)
+            updatePanelsContainerHeight();
+
+            // После завершения анимации убираем классы
+            setTimeout(() => {
+                nextPanel.classList.remove('fade-in', 'panel-scroll-hidden'); // no-slide остаётся, чтобы блокировать slide
+                isPanelAnimating = false;
+            }, PANEL_ANIMATION_DURATION);
+        }, PANEL_ANIMATION_DURATION);
     }
 
     function togglePanel(panelId) {
         if (activePanelId === panelId) {
             closePanel();
+        } else if (activePanelId) {
+            switchPanel(panelId);
         } else {
             openPanel(panelId);
         }
