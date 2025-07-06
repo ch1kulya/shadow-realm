@@ -259,24 +259,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Новая логика открытия/закрытия/переключения панелей ---
-    // Возвращает желаемую высоту (по содержимому панели настроек)
+    // Возвращает высоту, необходимую контейнеру панелей
+    // Берём реальную высоту содержимого панели настроек (она самая «большая»)
     function getDesiredPanelHeight() {
         const settingsPanel = document.getElementById('settings-panel');
         if (!settingsPanel) return 0;
 
-        // Если панель уже активна — высота доступна напрямую
+        // Берём внутренний контент панели настроек, чтобы не зависеть от высоты контейнера
+        const content = settingsPanel.querySelector('.panel-content') || settingsPanel;
+
+        // Если панель уже активна – scrollHeight сразу валиден
         if (settingsPanel.classList.contains('active')) {
-            return settingsPanel.scrollHeight;
+            return content.scrollHeight +
+                   parseFloat(getComputedStyle(settingsPanel).paddingTop) +
+                   parseFloat(getComputedStyle(settingsPanel).paddingBottom);
         }
 
-        // Иначе временно показываем её невидимо для корректного измерения
+        // Иначе временно показываем её независимо от контейнера
         const prevDisplay = settingsPanel.style.display;
         const prevVisibility = settingsPanel.style.visibility;
+        const prevPosition = settingsPanel.style.position;
+
         settingsPanel.style.display = 'block';
         settingsPanel.style.visibility = 'hidden';
-        const h = settingsPanel.scrollHeight;
+        settingsPanel.style.position = 'absolute';
+
+        const h = content.scrollHeight +
+                  parseFloat(getComputedStyle(settingsPanel).paddingTop) +
+                  parseFloat(getComputedStyle(settingsPanel).paddingBottom);
+
+        // Возвращаем стили
         settingsPanel.style.display = prevDisplay;
         settingsPanel.style.visibility = prevVisibility;
+        settingsPanel.style.position = prevPosition;
+
         return h;
     }
 
@@ -319,6 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function openPanel(panelId) {
         if (isPanelAnimating) return;
 
+        const firstOpen = !activePanelId; // Нужно ли анимировать высоту с задержкой
+
         // Если уже открыта другая панель, просто меняем контент
         if (activePanelId && activePanelId !== panelId) {
             document.getElementById(activePanelId).classList.remove('active');
@@ -337,21 +355,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (newBtn) newBtn.classList.add('active');
         activePanelId = panelId;
 
-        // Скролл к активной главе при открытии содержания
-        if (panelId === 'toc-panel') {
-            const currentChapterNumber = readerContainer.dataset.chapterNumber;
-            const activeChapterLi = chaptersListContainer.querySelector(`li[data-chapter-number="${currentChapterNumber}"]`);
-            if (activeChapterLi) {
-                const scrollContainer = chaptersListContainer;
-                const elementOffset = activeChapterLi.offsetTop;
-                const elementHeight = activeChapterLi.offsetHeight;
-                const containerHeight = scrollContainer.clientHeight;
-                scrollContainer.scrollTop = elementOffset - containerHeight / 2 + elementHeight / 2 - 165;
-            }
-        }
-
         // Корректируем высоту контейнера под содержимое панели настроек
-        updatePanelsContainerHeight();
+        if (firstOpen) {
+            // Смена высоты в следующем кадре, чтобы браузер применил исходное 0px
+            requestAnimationFrame(updatePanelsContainerHeight);
+        } else {
+            updatePanelsContainerHeight();
+        }
 
         // Убираем скрытие скроллбара после завершения анимации
         setTimeout(()=>{ panelElement.classList.remove('panel-scroll-hidden'); }, PANEL_ANIMATION_DURATION);
@@ -402,6 +412,9 @@ document.addEventListener('DOMContentLoaded', () => {
             switchPanel(panelId);
         } else {
             openPanel(panelId);
+            if (panelId === 'toc-panel') {
+                setTimeout(() => centerCurrentChapter(), 351);
+            }
         }
     }
 
@@ -450,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chaptersListContainer.appendChild(fragment);
     }
 
-    // --- Функция для обновления контролов настроек ---
+    // --- Функция для обновления контролов настроек (восстановлена) ---
     function updateControls() {
         settingControls.forEach(control => {
             const { setting, value } = control.dataset;
@@ -467,8 +480,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
-    // --- Логика загрузки и отображения глав ---
+
+    // --- Логика загрузки и отображения глав (восстановлена) ---
     function renderChapterList(chapters) {
         chaptersListContainer.innerHTML = '';
         const fragment = document.createDocumentFragment();
@@ -477,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chapters.forEach(chapter => {
             const li = document.createElement('li');
             li.dataset.chapterNumber = chapter.number;
-            
+
             if (chapter.number === currentChapterNumber) {
                 li.classList.add('current');
             }
@@ -507,16 +520,16 @@ document.addEventListener('DOMContentLoaded', () => {
             chaptersListContainer.innerHTML = '<li>Не удалось загрузить список глав.</li>';
         }
     }
-    
-    // --- Обработчики событий ---
+
+    // --- Обработчики событий (восстановлены) ---
     headerBtns.forEach(btn => btn.addEventListener('click', () => { 
         const panelId = btn.dataset.panelId;
         if (panelId) togglePanel(panelId);
     }));
-    
+
     bookmarkBtn.addEventListener('click', toggleBookmark);
     overlay.addEventListener('click', closePanel);
-    document.addEventListener('keydown', e => { if (e.key === "Escape") closePanel() });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
 
     settingControls.forEach(control => {
         const eventType = control.type === 'range' ? 'input' : (control.tagName === 'SELECT' ? 'change' : 'click');
@@ -541,39 +554,38 @@ document.addEventListener('DOMContentLoaded', () => {
         allChapters.reverse();
         const query = searchInput.value.toLowerCase();
         renderChapterList(allChapters.filter(c => c.title.toLowerCase().includes(query)));
+        // после сортировки без плавного докручивания
+        centerCurrentChapter();
     });
 
-    // --- Логика скролла и подсказок ---
+    // --- Логика скролла и подсказок (восстановлена) ---
     let scrollDirection = null; // Отслеживаем направление скролла
     let scrollThreshold = 0; // Счетчик пикселей для порога
 
     function handleScroll() {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         let currentDirection = scrollTop > lastScrollTop ? 'down' : 'up';
-        
-        // Проверяем, изменилось ли направление скролла
+
         if (scrollDirection !== currentDirection) {
             scrollDirection = currentDirection;
-            scrollThreshold = 0; // Сбрасываем счетчик при смене направления
+            scrollThreshold = 0;
         }
-        
-        // Увеличиваем счетчик только если скроллим в том же направлении
+
         if (scrollDirection === currentDirection) {
             scrollThreshold += Math.abs(scrollTop - lastScrollTop);
         }
-        
-        // Применяем логику только после преодоления порога в 10 пикселей
+
         if (scrollThreshold >= 10) {
             if (scrollTop > lastScrollTop && scrollTop > 40) {
                 readerHeader.classList.add('hidden');
-                if (activePanelId) closePanel(); // Закрываем панель при скролле вниз
+                if (activePanelId) closePanel();
                 if (floatingNav) floatingNav.classList.remove('visible');
             } else {
                 readerHeader.classList.remove('hidden');
                 if (floatingNav) floatingNav.classList.add('visible');
             }
         }
-        
+
         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     }
 
@@ -585,13 +597,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('scroll', handleScroll, false);
-    
-    // --- Инициализация при загрузке читалки ---
+
+    // --- Инициализация при загрузке читалки (восстановлена) ---
+    loadChapters();
     loadSettings();
     loadBookmarks();
     updateBookmarkStatus();
 
     const readerFooter = document.querySelector('.reader-footer');
+
     function updateFloatingNavPosition() {
         if (!floatingNav || !readerFooter) return;
         const footerRect = readerFooter.getBoundingClientRect();
@@ -605,6 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
             floatingNav.style.bottom = (overlap > defaultBottom ? overlap : defaultBottom) + 'px';
         }
     }
+
     window.addEventListener('scroll', updateFloatingNavPosition);
     window.addEventListener('resize', updateFloatingNavPosition);
 
@@ -612,4 +627,13 @@ document.addEventListener('DOMContentLoaded', () => {
         floatingNav.classList.add('visible');
         updateFloatingNavPosition();
     }
-}); 
+
+    // Utility: центрирование активной главы в списке содержания
+    function centerCurrentChapter() {
+        const currentChapterNumber = readerContainer.dataset.chapterNumber;
+        const activeLi = chaptersListContainer.querySelector(`li[data-chapter-number="${currentChapterNumber}"]`);
+        if (!activeLi) return;
+        activeLi.scrollIntoView({ behavior: "smooth", block: 'center', inline: 'nearest' });
+        return;
+    }
+}); // конец DOMContentLoaded
