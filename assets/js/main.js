@@ -327,6 +327,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             activePanelId = null;
             isPanelAnimating = false;
+
+            if (window._centerTocTimeout) {
+                clearTimeout(window._centerTocTimeout);
+                window._centerTocTimeout = null;
+            }
         }, PANEL_ANIMATION_DURATION);
     }
 
@@ -352,6 +357,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const newBtn = document.querySelector(`.header-btn[data-panel-id="${panelId}"]`);
         if (newBtn) newBtn.classList.add('active');
         activePanelId = panelId;
+
+        // Если открываем содержание в первый раз – рендерим список глав
+        if (panelId === 'toc-panel' && !chaptersListContainer.dataset.rendered) {
+            const query = searchInput.value.toLowerCase();
+            const filtered = query ? allChapters.filter(c => c.title.toLowerCase().includes(query) || String(c.number).includes(query)) : allChapters;
+            renderChapterList(filtered);
+            updateSortIcon();
+            chaptersListContainer.dataset.rendered = 'true';
+        }
 
         // Корректируем высоту контейнера под содержимое панели настроек
         if (firstOpen) {
@@ -401,6 +415,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 isPanelAnimating = false;
             }, PANEL_ANIMATION_DURATION);
         }, PANEL_ANIMATION_DURATION);
+
+        // отменяем ранее установленный таймер центрирования, если переключаемся
+        if (window._centerTocTimeout) {
+            clearTimeout(window._centerTocTimeout);
+            window._centerTocTimeout = null;
+        }
     }
 
     function togglePanel(panelId) {
@@ -411,7 +431,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             openPanel(panelId);
             if (panelId === 'toc-panel') {
-                setTimeout(() => centerCurrentChapter(), 351);
+                if (window._centerTocTimeout) clearTimeout(window._centerTocTimeout);
+                window._centerTocTimeout = setTimeout(() => centerCurrentChapter(), 351);
             }
         }
     }
@@ -547,14 +568,25 @@ document.addEventListener('DOMContentLoaded', () => {
         ));
     });
 
+    function updateSortIcon() {
+        // SVG-иконы: полоски разной длины (asc/desc)
+        sortBtn.innerHTML = sortAscending
+            ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="7" x2="6" y2="7"></line><line x1="3" y1="12" x2="12" y2="12"></line><line x1="3" y1="17" x2="18" y2="17"></line></svg>`
+            : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="7" x2="18" y2="7"></line><line x1="3" y1="12" x2="12" y2="12"></line><line x1="3" y1="17" x2="6" y2="17"></line></svg>`;
+    }
+
     sortBtn.addEventListener('click', () => {
         sortAscending = !sortAscending;
         allChapters.reverse();
         const query = searchInput.value.toLowerCase();
         renderChapterList(allChapters.filter(c => c.title.toLowerCase().includes(query)));
-        // после сортировки без плавного докручивания
+        // Обновляем иконку и центрируем
+        updateSortIcon();
         centerCurrentChapter();
     });
+
+    // Устанавливаем правильную иконку при первом запуске
+    updateSortIcon();
 
     // --- Логика скролла и подсказок (восстановлена) ---
     let scrollDirection = null; // Отслеживаем направление скролла
