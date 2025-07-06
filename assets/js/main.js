@@ -59,9 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateOfflineButtonState(state, data = {}) {
         if (!offlineBtn) return;
 
-        const sizeInStorage = localStorage.getItem('offline-total-size');
-        const totalKnownSize = data.totalSize || sizeInStorage;
-        const displayTotalSize = totalKnownSize || ESTIMATED_TOTAL_SIZE_BYTES;
+        const displayTotalSize = ESTIMATED_TOTAL_SIZE_BYTES;
 
         switch(state) {
             case 'ready':
@@ -89,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'complete':
                 offlineBtn.disabled = true;
                 offlineBtn.classList.add('active');
-                offlineBtn.textContent = `Оффлайн-доступ активен (${formatBytes(totalKnownSize)})`;
+                offlineBtn.textContent = `Оффлайн-доступ активен`;
                 break;
             case 'error':
                 offlineBtn.disabled = false;
@@ -599,7 +597,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', handleScroll, false);
 
     // --- Инициализация при загрузке читалки (восстановлена) ---
-    loadChapters();
     loadSettings();
     loadBookmarks();
     updateBookmarkStatus();
