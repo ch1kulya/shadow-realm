@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'static-v8'; // Увеличивайте при изменении CSS/JS
+const STATIC_CACHE = 'static-v9'; // Увеличивайте при изменении CSS/JS
 const CHAPTERS_CACHE = 'chapters-cache'; // Постоянный кеш глав, не меняется
 
 const STATIC_ASSETS = [
@@ -25,19 +25,6 @@ async function broadcastMessage(message) {
     clients.forEach((client) => {
         client.postMessage(message);
     });
-}
-
-async function calculateCacheSize(cache) {
-    const requests = await cache.keys();
-    let totalSize = 0;
-    for (const request of requests) {
-        const response = await cache.match(request);
-        if (response) {
-            const blob = await response.blob();
-            totalSize += blob.size;
-        }
-    }
-    return totalSize;
 }
 
 // Функция для безопасного добавления в кэш
@@ -82,8 +69,7 @@ async function processCachingQueue() {
     
     isCaching = false;
     console.log('Service Worker: Caching queue processed.');
-    const totalSize = await calculateCacheSize(cache);
-    broadcastMessage({ type: 'caching-finished', totalSize });
+    broadcastMessage({ type: 'caching-finished' });
 }
 
 async function cacheAll() {
@@ -99,8 +85,7 @@ async function cacheAll() {
         cachingQueue = chapterUrls.filter(u => !urlsInCache.includes(u));
 
         if (cachingQueue.length === 0) {
-            const totalSize = await calculateCacheSize(cache);
-            broadcastMessage({ type: 'caching-finished', totalSize });
+            broadcastMessage({ type: 'caching-finished' });
             return;
         }
         const totalToCache = urlsInCache.length + cachingQueue.length;
@@ -138,17 +123,16 @@ self.addEventListener('fetch', event => {
     const { url } = event.request;
 
     if (url.includes('/chapters/')) {
-        // Главы – только из CHAPTERS_CACHE (offline-first)
+        // Главы: если оффлайн-кеш уже существует — берём из него; новые страницы НЕ кладём в кеш
         event.respondWith(
             caches.open(CHAPTERS_CACHE).then(async cache => {
                 const cached = await cache.match(event.request);
-                if (cached) return cached;
                 try {
-                    const netRes = await fetch(event.request);
-                    cache.put(event.request, netRes.clone());
-                    return netRes;
+                    // Всегда пробуем сеть, не сохраняем ответ
+                    return await fetch(event.request);
                 } catch (_) {
-                    return cached; // fallback если сети нет и страницы не было
+                    // Если сети нет, пробуем отдать то, что уже скачано кнопкой «Скачать»
+                    return cached;
                 }
             })
         );
