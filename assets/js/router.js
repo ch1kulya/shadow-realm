@@ -26,24 +26,11 @@
     function hideChapterLoader() { chapterLoader.hidden = true; }
 
     function scrollToPageTop() {
-        // Некоторые мобильные браузеры (Safari/Chrome) меняют высоту viewport
-        // после появления/исчезновения UI-панелей. Прокручиваем до верха
-        // несколько раз подряд, пока фактический scrollTop не станет 0
-        // или пока не исчерпаем лимит попыток.
-
-        const maxAttempts = 6; // ~6 кадров ≈ 100 мс
-        let attempt = 0;
-
-        function tryScroll() {
-            window.scrollTo(0, 0);
-            attempt += 1;
-            const current = window.pageYOffset || document.documentElement.scrollTop;
-            if (current > 1 && attempt < maxAttempts) {
-                requestAnimationFrame(tryScroll);
-            }
-        }
-
-        tryScroll();
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "smooth",
+        });          
     }
 
     /**
