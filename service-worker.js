@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'static-v14'; // Увеличивайте при изменении CSS/JS
+const STATIC_CACHE = 'static-v15'; // Увеличивайте при изменении CSS/JS
 const CHAPTERS_CACHE = 'chapters-cache'; // Постоянный кеш глав, не меняется
 
 const STATIC_ASSETS = [
