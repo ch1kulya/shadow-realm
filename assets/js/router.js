@@ -29,7 +29,7 @@
         window.scrollTo(0, 0);
         // Повторяем в следующем кадре, так как некоторые мобильные браузеры
         // смещают контент после первой прокрутки (safe-area)
-        requestAnimationFrame(() => window.scrollTo(0, 0));
+        setTimeout(() => window.scrollTo(0, 0), 30);
     }
 
     /**
