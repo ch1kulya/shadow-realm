@@ -398,6 +398,12 @@ body {
     font-size: var(--reader-font-size);
     line-height: var(--reader-line-height);
     text-align: var(--reader-text-align);
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    overflow-wrap: break-word;
+    /* Ограничиваем автоматические переносы для слов < 8 символов (поддержка браузеров, где hyphenate-limit-chars работает) */
+    hyphenate-limit-chars: 9 4 4;
 }
 
 .chapter-content h1 {
