@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const windowHeight = window.innerHeight;
         const safeAreaBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-bottom')) || 0;
         const defaultBottom = 24 + safeAreaBottom;
-        const extraOffset = -20;
+        const extraOffset = -20 - safeAreaBottom;
         if (footerRect.top >= windowHeight) {
             floatingNav.style.bottom = defaultBottom + 'px';
         } else {
