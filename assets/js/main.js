@@ -428,11 +428,15 @@ document.addEventListener('DOMContentLoaded', () => {
             closePanel();
         } else if (activePanelId) {
             switchPanel(panelId);
+            if (panelId === 'toc-panel') {
+                if (window._centerTocTimeout) clearTimeout(window._centerTocTimeout);
+                window._centerTocTimeout = setTimeout(() => centerCurrentChapter(), 451);
+            }
         } else {
             openPanel(panelId);
             if (panelId === 'toc-panel') {
                 if (window._centerTocTimeout) clearTimeout(window._centerTocTimeout);
-                window._centerTocTimeout = setTimeout(() => centerCurrentChapter(), 351);
+                window._centerTocTimeout = setTimeout(() => centerCurrentChapter(), 451);
             }
         }
     }

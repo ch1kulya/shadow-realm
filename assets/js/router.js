@@ -13,12 +13,32 @@
         return url.origin === location.origin && url.pathname.startsWith('/chapters/');
     }
 
+    // --- Индикатор загрузки главы и утилита скролла ---
+    const chapterLoader = (() => {
+        const el = document.createElement('div');
+        el.className = 'chapter-loading-overlay';
+        el.hidden = true;
+        document.body.appendChild(el);
+        return el;
+    })();
+
+    function showChapterLoader() { chapterLoader.hidden = false; }
+    function hideChapterLoader() { chapterLoader.hidden = true; }
+
+    function scrollToPageTop() {
+        window.scrollTo(0, 0);
+        // Повторяем в следующем кадре, так как некоторые мобильные браузеры
+        // смещают контент после первой прокрутки (safe-area)
+        requestAnimationFrame(() => window.scrollTo(0, 0));
+    }
+
     /**
      * Выполняет SPA-переход к заданному URL.
      * @param {string} url
      * @param {boolean} replace true, если нужно заменить запись в истории (popstate)
      */
     async function goto(url, replace = false) {
+        showChapterLoader();
         try {
             const response = await fetch(url, {
                 headers: { 'X-Requested-With': 'spa' },
@@ -97,7 +117,7 @@
             }
 
             // Сбрасываем скролл в начало
-            window.scrollTo({ top: 0 });
+            scrollToPageTop();
 
             // Триггерим перерасчёт позиции плавающей навигации
             window.dispatchEvent(new Event('scroll'));
@@ -120,6 +140,8 @@
         } catch (err) {
             console.error('SPA navigation failed, falling back to full reload', err);
             location.href = url;
+        } finally {
+            hideChapterLoader();
         }
     }
 
