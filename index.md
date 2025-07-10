@@ -9,9 +9,12 @@ title: Главная
   </div>
 
   <div class="welcome-center-content">
-    <div class="title-container">
-      <h1>Теневой Раб</h1>
-      <span class="subtitle">Shadow Slave</span>
+    <div class="book-container">
+      <span class="book-icon">📗</span>
+      <div class="title-container">
+        <h1>Теневой Раб</h1>
+        <span class="subtitle">/ Shadow Slave</span>
+      </div>
     </div>
 
     <div class="description">
