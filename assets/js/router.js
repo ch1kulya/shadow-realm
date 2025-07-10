@@ -29,7 +29,7 @@
         // Детект iOS
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         if (isIOS) {
-            setTimeout(() => window.scrollTo(0, -25), 151);
+            setTimeout(() => window.scrollTo(0, -25), 25);
         } else {
             // Для других браузеров
             window.scrollTo(0, 0);
