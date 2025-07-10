@@ -13,6 +13,8 @@
     --panel-bg-color: #f6f1e7;
     --border-color: #e5e0d7;
 
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
     // Переменные для шрифтов
     --font-family-lora: 'Lora', serif;
     --font-family-inter: 'Inter', sans-serif;

@@ -26,7 +26,12 @@
     function hideChapterLoader() { chapterLoader.hidden = true; }
 
     function scrollToPageTop() {
-        setTimeout(() => window.scrollTo({ top: -5, left: 0}), 100);
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+        requestAnimationFrame(() => {
+            window.scrollTo(0, 0);
+        });
     }
 
     /**
