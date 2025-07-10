@@ -26,8 +26,7 @@
     function hideChapterLoader() { chapterLoader.hidden = true; }
 
     function scrollToPageTop() {
-        window.scrollTo(0, 0);
-        setTimeout(() => window.scrollTo(0, 0), 151);
+        setTimeout(() => window.scrollTo({ top: -5, left: 0}), 100);
     }
 
     /**
