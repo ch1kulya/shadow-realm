@@ -400,12 +400,25 @@ body {
     font-size: var(--reader-font-size);
     line-height: var(--reader-line-height);
     text-align: var(--reader-text-align);
-    hyphens: auto;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
     overflow-wrap: break-word;
     word-wrap: break-word;
-    hyphenate-limit-chars: 9 4 4;
+}
+
+@supports (hyphenate-limit-chars: 9 4 4) {
+    .chapter-content {
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        hyphenate-limit-chars: 9 4 4;
+    }
+}
+
+@supports not (hyphenate-limit-chars: 9 4 4) {
+    .chapter-content {
+        hyphens: none;
+        -webkit-hyphens: none;
+        -ms-hyphens: none;
+    }
 }
 
 .chapter-content h1 {
