@@ -41,10 +41,10 @@
                 window.scrollTo(0, 0);
                 document.documentElement.scrollTop = 0;
                 document.body.scrollTop = 0;
-            }, 100);
+            }, 300);
             setTimeout(() => {
                 viewport.content = originalContent;
-            }, 200);
+            }, 400);
         } else {
             // Для других браузеров
             window.scrollTo(0, 0);
