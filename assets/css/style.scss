@@ -400,11 +400,11 @@ body {
     font-size: var(--reader-font-size);
     line-height: var(--reader-line-height);
     text-align: var(--reader-text-align);
-    hyphens: auto;
-    -webkit-hyphens: auto;
-    -ms-hyphens: auto;
+    -webkit-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
     overflow-wrap: break-word;
-    /* Ограничиваем автоматические переносы для слов < 8 символов (поддержка браузеров, где hyphenate-limit-chars работает) */
+    word-wrap: break-word;
     hyphenate-limit-chars: 9 4 4;
 }
 

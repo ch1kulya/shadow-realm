@@ -64,12 +64,16 @@
   <!-- Автоматические переносы слов по правилам русского языка -->
   <script>
     window.Hyphenopoly = {
-      require: { "ru": "soft" },
+      require: {
+        "ru": "soft"
+      },
       cacheFeatureTests: true,
       setup: {
         selectors: {
           ".chapter-content": {
-            minWordLength: 9 // переносить только слова длиной 8+ символов
+            minWordLength: 9,
+            leftmin: 4,
+            rightmin: 4
           }
         }
       }
