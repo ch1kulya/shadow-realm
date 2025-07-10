@@ -26,12 +26,29 @@
     function hideChapterLoader() { chapterLoader.hidden = true; }
 
     function scrollToPageTop() {
-        window.scrollTo(0, 0);
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-        requestAnimationFrame(() => {
+        // Детект iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+            const viewport = document.querySelector('meta[name="viewport"]');
+            const originalContent = viewport.content;
+            viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            }, 0);
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            }, 100);
+            setTimeout(() => {
+                viewport.content = originalContent;
+            }, 200);
+        } else {
+            // Для других браузеров
             window.scrollTo(0, 0);
-        });
+        }
     }
 
     /**
