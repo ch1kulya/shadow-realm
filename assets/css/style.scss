@@ -400,9 +400,9 @@ body {
     font-size: var(--reader-font-size);
     line-height: var(--reader-line-height);
     text-align: var(--reader-text-align);
-    -webkit-hyphens: none;
-    -ms-hyphens: none;
-    hyphens: none;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
     overflow-wrap: break-word;
     word-wrap: break-word;
     hyphenate-limit-chars: 9 4 4;
