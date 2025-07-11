@@ -227,6 +227,21 @@ body {
         font-size: 0.95rem;
         text-align: center;
     }
+
+    .welcome-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .welcome-footer a {
+        margin: 0;
+    }
+
+    .welcome-footer a:not(:last-child)::after {
+        content: '';
+        margin-left: 0;
+    }
     
     /* Адаптивные стили для заголовков на дополнительных страницах */
     .page-container h1 {
