@@ -74,7 +74,7 @@ body {
 
 .book-icon {
     font-size: 4rem;
-    margin-right: 0.5rem;
+    margin-right: 1rem;
     display: none;
 }
 
@@ -266,6 +266,7 @@ body {
     .title-container {
         flex-direction: column;
         gap: 0rem;
+        margin-right: 0.5rem;
     }
 
     .book-icon {
@@ -300,6 +301,17 @@ body {
     /* Адаптивные стили для списков */
     .page-container ul, .page-container ol {
         padding-left: 1rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .title-container {
+        margin-right: 0rem;
+    }
+
+    .book-icon {
+        display: block;
+        margin-right: 0rem;
     }
 }
 
