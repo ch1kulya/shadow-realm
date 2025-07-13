@@ -148,7 +148,8 @@ self.addEventListener('fetch', event => {
                 cache.put(event.request, res.clone());
                 return res;
             }).catch(_ => cached);
-            return cached || fetchPromise;
+            return cached || fetchPromise
+                .catch(() => cache.match('/404.html'));
         })
     );
 });
