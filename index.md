@@ -10,10 +10,9 @@ title: Главная
 
   <div class="welcome-center-content">
     <div class="book-container">
-      <span class="book-icon">⠀⠀</span>
       <div class="title-container">
         <h1>Теневой Раб</h1>
-        <span class="subtitle">/ Shadow Slave</span>
+        <span class="subtitle">Shadow Slave</span>
       </div>
     </div>
 
@@ -56,14 +55,4 @@ title: Главная
       console.error("Не удалось обработать закладки для кнопки 'Начать читать':", e);
     }
   });
-  const bookEmojis = [
-      '⚔️', '🗡️', '🔥', '🌟', '🌙', '🛡️', '👑',
-      '🎭', '🔮'
-  ];
-  function setRandomBookIcon() {
-      const bookIcon = document.querySelector('.book-icon');
-      const randomIndex = Math.floor(Math.random() * bookEmojis.length);
-      bookIcon.textContent = bookEmojis[randomIndex];
-  }
-  window.addEventListener('load', setRandomBookIcon);
 </script> 
