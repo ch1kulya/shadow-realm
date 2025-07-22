@@ -466,7 +466,17 @@ body {
     }
 }
 
-@supports not (hyphenate-limit-chars: 9 4 4) {
+@supports (-webkit-hyphenate-limit-before: 4) and (-webkit-hyphenate-limit-after: 4) {
+    .chapter-content, .description {
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        -ms-hyphens: auto;
+        -webkit-hyphenate-limit-before: 4;
+        -webkit-hyphenate-limit-after: 4;
+    }
+}
+
+@supports (not (hyphenate-limit-chars: 9 4 4)) and (not (-webkit-hyphenate-limit-before: 4)) and (not (-webkit-hyphenate-limit-after: 4)) {
     .chapter-content, .description {
         hyphens: none;
         -webkit-hyphens: none;
