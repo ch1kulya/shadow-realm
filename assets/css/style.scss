@@ -72,12 +72,6 @@ body {
     box-sizing: border-box;
 }
 
-.book-icon {
-    font-size: 4rem;
-    margin-right: 1rem;
-    display: none;
-}
-
 .book-container {
     display: flex;
     flex-direction: row;
@@ -110,7 +104,7 @@ body {
 .subtitle {
     font-family: var(--font-family-inter);
     font-size: 1.1rem;
-    opacity: 0.8;
+    opacity: 0.9;
     font-weight: 400;
 }
 
@@ -278,10 +272,6 @@ body {
         margin-right: 0.5rem;
     }
 
-    .book-icon {
-        display: block;
-    }
-
     .welcome-footer {
         display: flex;
         flex-direction: column;
@@ -321,11 +311,6 @@ body {
     .chapter-content h1 {
         font-size: 1.5rem !important;
     }
-
-    .book-icon {
-        display: block;
-        margin-right: 0rem;
-    }
 }
 
 /* Дополнительные стили для очень узких экранов */
@@ -341,10 +326,6 @@ body {
     
     .page-container {
         padding: 1rem 0.75rem;
-    }
-
-    .book-icon {
-        display: none;
     }
 
     .title-container {
