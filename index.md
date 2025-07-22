@@ -58,7 +58,7 @@ title: Главная
   });
   const bookEmojis = [
       '⚔️', '🗡️', '🔥', '🌟', '🌙', '🛡️', '👑',
-      '🎭', '🔮', '📜'
+      '🎭', '🔮'
   ];
   function setRandomBookIcon() {
       const bookIcon = document.querySelector('.book-icon');
