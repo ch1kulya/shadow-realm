@@ -9,10 +9,13 @@ title: Главная
   </div>
 
   <div class="welcome-center-content">
-    <div class="book-container">
-      <div class="title-container">
-        <h1>Теневой Раб</h1>
-        <span class="subtitle">Shadow Slave</span>
+    <div class="cover-container">
+      <img class="cover-img" src="{{ '/assets/img/cover.webp' | relative_url }}" alt="Обложка новеллы">
+      <div class="book-container">
+        <div class="title-container">
+          <h1>Теневой Раб</h1>
+          <span class="subtitle">Shadow Slave</span>
+        </div>
       </div>
     </div>
 
@@ -25,7 +28,7 @@ title: Главная
     {% if first_chapter %}
       <a href="{{ first_chapter.url | relative_url }}" class="btn-start-reading">Начать читать</a>
     {% else %}
-      <p>Главы еще не добавлены.</p>
+      <p>Главы не доступны.</p>
     {% endif %}
   </div>
   <div class="welcome-footer">
@@ -35,6 +38,13 @@ title: Главная
     <a href="{{ '/privacy' | relative_url }}">Политика конфиденциальности</a>
   </div>
 </div>
+<div class="welcome-footer-sm welcome-footer">
+  <a href="{{ '/translators' | relative_url }}">О переводчиках</a>
+  <a href="{{ '/dmca' | relative_url }}">DMCA</a>
+  <a href="{{ '/rights' | relative_url }}">Правообладателям</a>
+  <a href="{{ '/privacy' | relative_url }}">Политика конфиденциальности</a>
+</div>
+<div class="reader-footer">© ch1ka 2025</div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const startReadingBtn = document.querySelector('.btn-start-reading');
