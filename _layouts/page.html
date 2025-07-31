@@ -1,10 +1,17 @@
 ---
 layout: default
 ---
-<div class="page-container">
+<main class="page-container" role="main">
   {{ content }}
-  <div style="display: flex; justify-content: center; margin-top: 3rem;">
-    <a onclick="history.back()" class="btn-back-home">Вернуться назад</a>
+
+  <div class="page-actions">
+    <a class="btn-back-home" role="link" onclick="(function(){
+                  if (document.referrer && document.referrer.indexOf(location.origin) === 0) {
+                    history.back();
+                  } else {
+                    window.location.href = '{{ " /" | relative_url }}'; } })()">
+      Вернуться назад
+    </a>
   </div>
-</div>
+</main>
 <div class="reader-footer">© ch1ka 2025</div>
