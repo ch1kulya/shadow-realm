@@ -5,11 +5,12 @@ layout: default
   {{ content }}
 
   <div class="page-actions">
-    <a class="btn-back-home" role="link" onclick="(function(){
+    <a class="btn-back-home" onclick="(function(){
                   if (document.referrer && document.referrer.indexOf(location.origin) === 0) {
                     history.back();
                   } else {
-                    window.location.href = '{{ " /" | relative_url }}'; } })()">
+                    window.location.href = '{{ "/" | relative_url }}';
+                  }
       Вернуться назад
     </a>
   </div>
