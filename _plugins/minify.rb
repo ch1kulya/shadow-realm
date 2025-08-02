@@ -17,7 +17,7 @@ Jekyll::Hooks.register :site, :post_write do |site|
       
       minified = minify_html(content, {
         :keep_spaces_between_attributes => false,
-        :minify_js => false,
+        :minify_js => true,
         :minify_css => true,
         :remove_comments => true,
         :collapse_whitespace => true,
