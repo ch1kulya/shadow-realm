@@ -39,13 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let allChapters = [];
     let sortAscending = true;
     let lastScrollTop = 0;
-    // Скорость анимации панелей (должна совпадать со значением в CSS)
     const PANEL_ANIMATION_DURATION = 200; // ms
 
     // --- Логика оффлайн-доступа ---
     const offlineBtn = document.getElementById('offline-download-btn');
     const swPath = '/service-worker.js';
-    const ESTIMATED_TOTAL_SIZE_BYTES = 60 * 1024 * 1024; // 60 MB
+
+    function getTotalSizeBytes() {
+        const buildSizeMB = window.BUILD_SIZE_MB || 0;
+        if (buildSizeMB > 0) {
+            return buildSizeMB * 1024 * 1024;
+        }
+        return 60 * 1024 * 1024; // 60 MB
+    }
 
     function formatBytes(bytes, decimals = 1) {
         if (!bytes || bytes === 0) return '0 байт';
@@ -59,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateOfflineButtonState(state, data = {}) {
         if (!offlineBtn) return;
 
-        const displayTotalSize = ESTIMATED_TOTAL_SIZE_BYTES;
+        const displayTotalSize = getTotalSizeBytes();
 
         switch(state) {
             case 'ready':
@@ -71,13 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
-                    Скачать (~${formatBytes(ESTIMATED_TOTAL_SIZE_BYTES)})`;
+                    Кэшировать ${formatBytes(displayTotalSize)}`;
                 break;
             case 'downloading':
                 offlineBtn.disabled = true;
                 offlineBtn.classList.add('active');
                 const progressBytes = (data.count / data.total) * displayTotalSize;
-                offlineBtn.textContent = `Загрузка... (${formatBytes(progressBytes)} из ~${formatBytes(displayTotalSize)})`;
+                offlineBtn.textContent = `Кэширование... ${formatBytes(progressBytes)}/${formatBytes(displayTotalSize)}`;
                 break;
             case 'updating':
                 offlineBtn.disabled = true;

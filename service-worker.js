@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'static-v16';
+const STATIC_CACHE = 'static-v17';
 const CHAPTERS_CACHE = 'chapters-cache';
 
 const STATIC_ASSETS = [
@@ -6,9 +6,11 @@ const STATIC_ASSETS = [
     '/assets/css/style.css',
     '/assets/js/main.js',
     '/assets/js/router.js',
+    '/assets/js/theme-init.js',
     '/favicon.ico',
     '/404.html',
     '/robots.txt',
+    '/assets/img/cover.webp',
 ];
 
 const FONT_ASSETS = [

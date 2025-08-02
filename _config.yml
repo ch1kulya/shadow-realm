@@ -12,8 +12,6 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
 
-# theme: jekyll-theme-minimal
-
 collections:
   chapters:
     output: true
@@ -24,3 +22,6 @@ sass:
   load_paths:
     - _sass
     - assets/css
+
+exclude:
+  - Rakefile
