@@ -25,3 +25,4 @@ sass:
 
 exclude:
   - Rakefile
+  - vendor/
