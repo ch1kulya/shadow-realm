@@ -605,7 +605,7 @@ subtitle {
 /* --- Стили для иконок-переключателей --- */
 .icon-group {
     display: flex;
-    gap: 0.5rem;
+    gap: 0;
 }
 
 .icon-group button {
@@ -613,23 +613,40 @@ subtitle {
     height: 38px;
     background: transparent;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     color: var(--text-color);
-    transition: background-color 0.2s, border-color 0.2s, border-width 0.2s;
+    transition: box-shadow 0.2s;
     font-size: 0.9rem;
     font-family: var(--font-family-inter);
     font-weight: 500;
-    box-sizing: border-box; /* Предотвращает смещение при изменении рамки */
+    box-sizing: border-box;
+    position: relative;
+}
+
+.icon-group button + button {
+    margin-left: -1px;
+}
+
+.icon-group button:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.icon-group button:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 .icon-group button.active {
-    border-width: 2px;
+    z-index: 1;
+    box-shadow: inset 0 0 0 1px var(--primary-color);
     border-color: var(--primary-color);
 }
+
 .icon-group button svg {
     stroke: currentColor;
 }
@@ -640,8 +657,8 @@ subtitle {
     align-items: center;
     gap: 1rem;
 }
-.font-size-label-sm { font-size: 0.8em; opacity: 0.7; }
-.font-size-label-lg { font-size: 1.2em; opacity: 0.7; }
+.font-size-label-sm { font-size: 0.8em; opacity: 0.9; }
+.font-size-label-lg { font-size: 1.2em; opacity: 0.9; }
 
 .slider-wrapper input[type="range"] {
     -webkit-appearance: none;
@@ -683,27 +700,6 @@ subtitle {
     border-color: var(--panel-bg-color);
 }
 
-/* --- Кружки выбора темы --- */
-.theme-options {
-    display:flex;
-    gap:0.5rem;
-    align-items: center;
-    height: 38px;
-}
-
-.theme-circle {
-    width:28px;
-    height:28px;
-    border-radius:50%;
-    border:2px solid var(--border-color);
-    cursor:pointer;
-    background-color:#fff;
-    padding:0; /* для единообразия */
-}
-.theme-circle.dark { background:#000; }
-.theme-circle.light { background:#fff; }
-.theme-circle.active { border-color: var(--primary-color); }
-
 /* --- Селект шрифтов --- */
 .custom-select-wrapper {
     position: relative;
@@ -719,6 +715,7 @@ subtitle {
     color: var(--text-color);
     cursor: pointer;
     font-size: 0.9rem;
+    transition: box-shadow 0.2s;
 }
 .custom-select-wrapper::after {
   content: '';
@@ -737,6 +734,7 @@ subtitle {
 .font-select:focus {
     outline: none;
     border-color: var(--primary-color);
+    box-shadow: inset 0 0 0 1px var(--primary-color);
 }
 .font-select option { 
     background: var(--panel-bg-color); 
@@ -910,6 +908,13 @@ subtitle {
     border-radius: 8px;
     padding: 0.55rem 2.5rem 0.55rem 0.9rem;
     font-size: 0.9rem;
+    font-family: var(--font-family-inter);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: inset 0 0 0 1px var(--primary-color);
 }
 
 .toc-controls .sort-btn {
@@ -1048,11 +1053,7 @@ subtitle {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.btn-full-width:hover {
-  filter: brightness(95%);
+  transition: transform 0.1s ease;
 }
 
 .btn-full-width:active {

@@ -217,12 +217,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Логика настроек ---
     const settings = {
-        theme: 'light',
+        theme: 'system',
         font: 'lora',
-        'font-size': '18',
+        'font-size': '1.125',
         align: 'left',
         indent: '0'
     };
+
+    function detectSystemTheme() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function applyTheme(theme) {
+        if (theme === 'system') {
+            const systemTheme = detectSystemTheme();
+            document.documentElement.classList.toggle('dark-theme', systemTheme === 'dark');
+        } else {
+            document.documentElement.classList.toggle('dark-theme', theme === 'dark');
+        }
+    }
 
     function applySetting(name, value) {
         settings[name] = value;
@@ -230,13 +243,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         switch(name) {
             case 'theme':
-                document.documentElement.classList.toggle('dark-theme', value === 'dark');
+                applyTheme(value);
                 break;
             case 'font':
                 root.style.setProperty('--reader-font-family', `var(--font-family-${value})`);
                 break;
             case 'font-size':
-                root.style.setProperty('--reader-font-size', `${value}px`);
+                root.style.setProperty('--reader-font-size', `${value}rem`);
                 break;
             case 'align':
                 root.style.setProperty('--reader-text-align', value);
@@ -250,16 +263,34 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadSettings() {
         // Загружаем сохраненные настройки или используем пустой объект
         const savedSettings = JSON.parse(localStorage.getItem('readerSettings')) || {};
+        
+        if (savedSettings['font-size'] && parseFloat(savedSettings['font-size']) > 2) {
+            savedSettings['font-size'] = (parseFloat(savedSettings['font-size']) / 16).toFixed(3);
+        }
+        
         // Обновляем глобальный объект настроек в JS
         Object.assign(settings, savedSettings);
-    
-        // Если тема не была сохранена, определяем ее из DOM (установлено инлайн-скриптом)
+
         if (!savedSettings.theme) {
-            settings.theme = document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light';
+            settings.theme = 'system';
         }
+        applyTheme(settings.theme);
+        if (settings.font) root.style.setProperty('--reader-font-family', `var(--font-family-${settings.font})`);
+        if (settings['font-size']) root.style.setProperty('--reader-font-size', `${settings['font-size']}rem`);
+        if (settings.align) root.style.setProperty('--reader-text-align', settings.align);
+        if (settings.indent) root.style.setProperty('--reader-paragraph-indent', `${settings.indent}rem`);
     
         // Синхронизируем контролы в панели с текущими настройками
         updateControls();
+    }
+
+    // Добавляем слушатель изменения системной темы
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (settings.theme === 'system') {
+                applyTheme('system');
+            }
+        });
     }
 
     // --- Новая логика открытия/закрытия/переключения панелей ---

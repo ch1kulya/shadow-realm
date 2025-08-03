@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'static-v17';
+const STATIC_CACHE = 'static-v18';
 const CHAPTERS_CACHE = 'chapters-cache';
 
 const STATIC_ASSETS = [
