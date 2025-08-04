@@ -8,12 +8,6 @@ description: >-
 
 lang: ru
 
-defaults:
-  - scope:
-      path: ""
-    values:
-      seo_description_max_words: 150
-
 plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
