@@ -10,12 +10,7 @@ task :build do
   require_relative '_plugins/minify'
   require_relative '_plugins/build-size'
   
-  config = Jekyll.configuration({
-    'config' => '_config.yml',
-    'source' => '.',
-    'destination' => '_site'
-  })
-  Jekyll::Site.new(config).process
+  Jekyll::Site.new(Jekyll.configuration).process
 end
 
 desc "Serve site locally"
