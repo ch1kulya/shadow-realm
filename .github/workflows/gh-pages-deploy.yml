@@ -51,10 +51,9 @@ jobs:
           max_consecutive_failures=10
           
           while true; do
-            file_url="${BASE_URL}/${counter}.md"
-            file_path="_chapters/${counter}.md"
-            
-            echo -n "📥 Downloading ${counter}.md... "
+            formatted_counter=$(printf "%04d" $counter)
+            file_url="${BASE_URL}/${formatted_counter}.md"
+            file_path="_chapters/${formatted_counter}.md"
             
             http_code=$(curl -s -w "%{http_code}" -o "$file_path" "$file_url")
             
@@ -80,7 +79,7 @@ jobs:
             sleep 0.05
           done
           
-          echo "📊 Summary:"
+          echo "Summary:"
           echo "   Total downloaded: $downloaded files"
           echo "   Last attempted: ${counter}.md"
           
