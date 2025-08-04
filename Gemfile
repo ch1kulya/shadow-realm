@@ -15,3 +15,5 @@ gem "minify_html"
 gem "uglifier"
 gem "sassc"
 gem "rake"
+
+gem "dotenv"

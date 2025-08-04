@@ -1,9 +1,12 @@
 require 'jekyll'
+require 'dotenv'
+Dotenv.load
 
 desc "Build and minify"
 task :build do
   puts "Building Jekyll site..."
 
+  require_relative '_plugins/fetch-chapters'
   require_relative '_plugins/minify'
   require_relative '_plugins/build-size'
   
