@@ -31,10 +31,9 @@ jobs:
             chapters-${{ hashFiles('**/Gemfile.lock') }}-
             chapters-
         
-      - name: Download chapters
-        if: steps.chapters-cache.outputs.cache-hit != 'true'
+      - name: Download or update chapters
         run: |
-          echo "Downloading chapters from bucket..."
+          echo "Checking for new chapters..."
           
           mkdir -p _chapters
           
@@ -45,40 +44,65 @@ jobs:
             exit 1
           fi
           
-          counter=0
+          if [ -d "_chapters" ] && [ "$(ls -A _chapters)" ]; then
+            last_file=$(ls _chapters/*.md 2>/dev/null | sort -V | tail -1)
+            if [ -n "$last_file" ]; then
+              last_number=$(basename "$last_file" .md | sed 's/^0*//')
+              starting_counter=$((last_number))
+              echo "Found existing chapters. Last chapter: $(basename "$last_file")"
+              echo "Checking for new chapters starting from $starting_counter..."
+            else
+              starting_counter=0
+            fi
+          else
+            starting_counter=0
+            echo "No existing chapters found. Starting fresh download..."
+          fi
+          
+          counter=$starting_counter
           downloaded=0
+          updated=0
           consecutive_failures=0
           max_consecutive_failures=10
           
           while true; do
-            if [ $counter -lt 10 ]; then
-              formatted_counter="000$counter"
-            elif [ $counter -lt 100 ]; then
-              formatted_counter="00$counter"
-            elif [ $counter -lt 1000 ]; then
-              formatted_counter="0$counter"
-            else
-              formatted_counter="$counter"
-            fi
+            formatted_counter=$(printf "%04d" $counter)
             file_url="${BASE_URL}/${formatted_counter}.md"
             file_path="_chapters/${formatted_counter}.md"
+            temp_file="_chapters/.${formatted_counter}.md.tmp"
             
-            http_code=$(curl -s -w "%{http_code}" -o "$file_path" "$file_url")
+            http_code=$(curl -s -w "%{http_code}" -o "$temp_file" "$file_url")
             
             if [ "$http_code" = "200" ]; then
-              if [ -s "$file_path" ]; then
-                downloaded=$((downloaded + 1))
+              if [ -s "$temp_file" ]; then
+                if [ -f "$file_path" ]; then
+                  if ! cmp -s "$temp_file" "$file_path"; then
+                    mv "$temp_file" "$file_path"
+                    updated=$((updated + 1))
+                  else
+                    rm -f "$temp_file"
+                  fi
+                else
+                  mv "$temp_file" "$file_path"
+                  downloaded=$((downloaded + 1))
+                fi
                 consecutive_failures=0
               else
-                rm -f "$file_path"
+                rm -f "$temp_file"
                 consecutive_failures=$((consecutive_failures + 1))
               fi
             else
-              rm -f "$file_path"
+              rm -f "$temp_file"
               consecutive_failures=$((consecutive_failures + 1))
+              
+              if [ -f "$file_path" ]; then
+                echo "  ! Keep existing ${formatted_counter}.md (server returned $http_code)"
+                consecutive_failures=0 
+              fi
             fi
             
             if [ $consecutive_failures -ge $max_consecutive_failures ]; then
+              echo "Stopping after $max_consecutive_failures consecutive failures"
               break
             fi
             
@@ -87,20 +111,25 @@ jobs:
             sleep 0.05
           done
           
+          echo ""
           echo "Summary:"
-          echo "   Total downloaded: $downloaded files"
-          echo "   Last attempted: ${counter}.md"
+          echo "   New files downloaded: $downloaded"
+          echo "   Files updated: $updated"
+          echo "   Last checked: ${formatted_counter}.md"
           
-          if [ $downloaded -eq 0 ]; then
-            echo "No files were downloaded!"
+          total_files=$(find _chapters -name "*.md" | wc -l)
+          echo "   Total chapter files: $total_files"
+          
+          if [ $total_files -eq 0 ]; then
+            echo "No chapter files found!"
             exit 1
           fi
           
-          echo "Chapters download completed!"
+          echo "Chapters sync completed!"
         
       - name: Verify chapters
         run: |
-          echo "Verifying downloaded chapters..."
+          echo "Verifying chapters..."
           
           if [ ! -d "_chapters" ]; then
             echo "_chapters directory does not exist"
