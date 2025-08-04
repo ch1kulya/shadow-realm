@@ -51,7 +51,15 @@ jobs:
           max_consecutive_failures=10
           
           while true; do
-            formatted_counter=$(printf "%04d" $counter)
+            if [ $counter -lt 10 ]; then
+              formatted_counter="000$counter"
+            elif [ $counter -lt 100 ]; then
+              formatted_counter="00$counter"
+            elif [ $counter -lt 1000 ]; then
+              formatted_counter="0$counter"
+            else
+              formatted_counter="$counter"
+            fi
             file_url="${BASE_URL}/${formatted_counter}.md"
             file_path="_chapters/${formatted_counter}.md"
             
