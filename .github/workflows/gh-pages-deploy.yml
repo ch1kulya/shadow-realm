@@ -30,6 +30,15 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
+
+      - name: Restore chapters cache
+        uses: actions/cache@v4
+        with:
+          path: _chapters
+          key: chapters-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('_plugins/fetch_chapters.rb') }}
+          restore-keys: |
+            chapters-${{ hashFiles('**/Gemfile.lock') }}-
+            chapters-
         
       - name: Build with Jekyll via Rake
         run: bundle exec rake build
@@ -37,6 +46,13 @@ jobs:
           JEKYLL_ENV: production
           CHAPTERS_BUCKET_URL: ${{ secrets.CHAPTERS_BUCKET_URL }}
           CHAPTERS_CONCURRENCY: ${{ vars.CHAPTERS_CONCURRENCY }}
+
+      - name: Save chapters cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: _chapters
+          key: chapters-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('_plugins/fetch_chapters.rb') }}
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
