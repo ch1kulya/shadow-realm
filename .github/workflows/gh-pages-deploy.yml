@@ -21,6 +21,95 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
+      - name: Cache chapters
+        uses: actions/cache@v4
+        id: chapters-cache
+        with:
+          path: _chapters
+          key: chapters-${{ hashFiles('**/Gemfile.lock') }}-${{ github.run_number }}
+          restore-keys: |
+            chapters-${{ hashFiles('**/Gemfile.lock') }}-
+            chapters-
+        
+      - name: Download chapters
+        if: steps.chapters-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "Downloading chapters from bucket..."
+          
+          mkdir -p _chapters
+          
+          BASE_URL="${{ secrets.CHAPTERS_BUCKET_URL }}"
+          
+          if [ -z "$BASE_URL" ]; then
+            echo "Environment secret is not set"
+            exit 1
+          fi
+          
+          counter=0
+          downloaded=0
+          consecutive_failures=0
+          max_consecutive_failures=10
+          
+          while true; do
+            file_url="${BASE_URL}/${counter}.md"
+            file_path="_chapters/${counter}.md"
+            
+            echo -n "📥 Downloading ${counter}.md... "
+            
+            http_code=$(curl -s -w "%{http_code}" -o "$file_path" "$file_url")
+            
+            if [ "$http_code" = "200" ]; then
+              if [ -s "$file_path" ]; then
+                downloaded=$((downloaded + 1))
+                consecutive_failures=0
+              else
+                rm -f "$file_path"
+                consecutive_failures=$((consecutive_failures + 1))
+              fi
+            else
+              rm -f "$file_path"
+              consecutive_failures=$((consecutive_failures + 1))
+            fi
+            
+            if [ $consecutive_failures -ge $max_consecutive_failures ]; then
+              break
+            fi
+            
+            counter=$((counter + 1))
+            
+            sleep 0.05
+          done
+          
+          echo "📊 Summary:"
+          echo "   Total downloaded: $downloaded files"
+          echo "   Last attempted: ${counter}.md"
+          
+          if [ $downloaded -eq 0 ]; then
+            echo "No files were downloaded!"
+            exit 1
+          fi
+          
+          echo "Chapters download completed!"
+        
+      - name: Verify chapters
+        run: |
+          echo "Verifying downloaded chapters..."
+          
+          if [ ! -d "_chapters" ]; then
+            echo "_chapters directory does not exist"
+            exit 1
+          fi
+          
+          file_count=$(find _chapters -name "*.md" | wc -l)
+          echo "Found $file_count chapter files"
+
+          if [ $file_count -eq 0 ]; then
+            echo "No chapter files found"
+            exit 1
+          fi
+
+          echo "Chapters verification completed!"
+        
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
