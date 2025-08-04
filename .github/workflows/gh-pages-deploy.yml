@@ -35,6 +35,8 @@ jobs:
         run: bundle exec rake build
         env:
           JEKYLL_ENV: production
+          CHAPTERS_BUCKET_URL: ${{ secrets.CHAPTERS_BUCKET_URL }}
+          CHAPTERS_CONCURRENCY: ${{ vars.CHAPTERS_CONCURRENCY }}
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
