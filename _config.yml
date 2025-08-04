@@ -3,16 +3,24 @@ url: "https://shadowslave.ru"
 baseurl: ""
 author: Guiltythree
 
-description: >-
-  Все главы новеллы Теневой раб доступны на русском языке бесплатно. Вас ждет удобный формат для чтения, регулярные обновления, быстрый доступ к любимым главам и возможность читать без интернета.
+defaults:
+  - scope:
+      path: ""
+    values:
+      description: >-
+        Все главы новеллы Теневой раб доступны на русском языке бесплатно. Вас ждет удобный формат для чтения, регулярные обновления, быстрый доступ к любимым главам и возможность читать без интернета.
+  - scope:
+      path: "_chapters"
+      type: "chapters"
+    values:
+      description: >-
+        Глава новеллы Теневой раб. Читайте бесплатно на русском языке с удобной навигацией между главами.
 
 lang: ru
 
 plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
-
-seo_description_max_words: 25
 
 collections:
   chapters:
