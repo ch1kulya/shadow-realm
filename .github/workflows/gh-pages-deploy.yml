@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Cache chapters
         uses: actions/cache@v4
         id: chapters-cache
@@ -30,137 +30,142 @@ jobs:
           restore-keys: |
             chapters-${{ hashFiles('**/Gemfile.lock') }}-
             chapters-
-        
+
       - name: Download or update chapters
+        shell: bash
         run: |
+          set -euo pipefail
           echo "Checking for new chapters..."
-          
           mkdir -p _chapters
-          
           BASE_URL="${{ secrets.CHAPTERS_BUCKET_URL }}"
-          
-          if [ -z "$BASE_URL" ]; then
-            echo "Environment secret is not set"
+          if [ -z "${BASE_URL:-}" ]; then
+            echo "Environment secret CHAPTERS_BUCKET_URL is not set"
             exit 1
           fi
-          
-          if [ -d "_chapters" ] && [ "$(ls -A _chapters)" ]; then
+          if compgen -G "_chapters/*.md" > /dev/null; then
             last_file=$(ls _chapters/*.md 2>/dev/null | sort -V | tail -1)
             if [ -n "$last_file" ]; then
               last_number=$(basename "$last_file" .md | sed 's/^0*//')
+              if [ -z "$last_number" ]; then last_number=0; fi
               starting_counter=$((last_number))
               echo "Found existing chapters. Last chapter: $(basename "$last_file")"
-              echo "Checking for new chapters starting from $starting_counter..."
             else
               starting_counter=0
+              echo "No existing chapters found. Starting fresh download..."
             fi
           else
             starting_counter=0
             echo "No existing chapters found. Starting fresh download..."
           fi
-          
           counter=$starting_counter
           downloaded=0
           updated=0
-          consecutive_failures=0
-          max_consecutive_failures=10
-          
+          consecutive_not_found=0
+          consecutive_errors=0
+          max_consecutive_not_found=10
+          max_consecutive_errors=10
+          last_checked=""
           while true; do
-            formatted_counter=$(printf "%04d" $counter)
+            formatted_counter=$(printf "%04d" "$counter")
             file_url="${BASE_URL}/${formatted_counter}.md"
             file_path="_chapters/${formatted_counter}.md"
             temp_file="_chapters/.${formatted_counter}.md.tmp"
-            
-            http_code=$(curl -s -w "%{http_code}" -o "$temp_file" "$file_url")
-            
-            if [ "$http_code" = "200" ]; then
+            http_code=$(curl -sS --fail-with-body -m 20 -w "%{http_code}" -o "$temp_file" "$file_url" || true)
+            if [[ -z "$http_code" ]]; then
+              rm -f "$temp_file"
+              consecutive_errors=$((consecutive_errors + 1))
+              echo "  ! Error fetching ${formatted_counter}.md (no HTTP code)"
+            elif [[ "$http_code" == "200" ]]; then
               if [ -s "$temp_file" ]; then
                 if [ -f "$file_path" ]; then
                   if ! cmp -s "$temp_file" "$file_path"; then
                     mv "$temp_file" "$file_path"
                     updated=$((updated + 1))
+                    echo "  ~ Updated ${formatted_counter}.md"
                   else
                     rm -f "$temp_file"
                   fi
                 else
                   mv "$temp_file" "$file_path"
                   downloaded=$((downloaded + 1))
+                  echo "  + Downloaded ${formatted_counter}.md"
                 fi
-                consecutive_failures=0
+                consecutive_not_found=0
+                consecutive_errors=0
               else
                 rm -f "$temp_file"
-                consecutive_failures=$((consecutive_failures + 1))
+                consecutive_errors=$((consecutive_errors + 1))
+                echo "  ! Empty body for ${formatted_counter}.md (200)"
               fi
+            elif [[ "$http_code" == "404" || "$http_code" == "403" ]]; then
+              rm -f "$temp_file"
+              if [ -f "$file_path" ]; then
+                echo "  ! Keep existing ${formatted_counter}.md (server ${http_code})"
+              else
+                echo "  - Not found ${formatted_counter}.md (${http_code})"
+              fi
+              consecutive_not_found=$((consecutive_not_found + 1))
+              consecutive_errors=0
             else
               rm -f "$temp_file"
-              consecutive_failures=$((consecutive_failures + 1))
-              
-              if [ -f "$file_path" ]; then
-                echo "  ! Keep existing ${formatted_counter}.md (server returned $http_code)"
-                consecutive_failures=0 
-              fi
+              echo "  ! HTTP ${http_code} for ${formatted_counter}.md"
+              consecutive_errors=$((consecutive_errors + 1))
             fi
-            
-            if [ $consecutive_failures -ge $max_consecutive_failures ]; then
-              echo "Stopping after $max_consecutive_failures consecutive failures"
+            last_checked="${formatted_counter}.md"
+            if [ $consecutive_not_found -ge $max_consecutive_not_found ]; then
+              echo "Stopping after $max_consecutive_not_found consecutive not-found/forbidden"
               break
             fi
-            
+            if [ $consecutive_errors -ge $max_consecutive_errors ]; then
+              echo "Stopping after $max_consecutive_errors consecutive errors/empty responses"
+              break
+            fi
             counter=$((counter + 1))
-            
             sleep 0.05
           done
-          
           echo ""
           echo "Summary:"
           echo "   New files downloaded: $downloaded"
           echo "   Files updated: $updated"
-          echo "   Last checked: ${formatted_counter}.md"
-          
+          echo "   Last checked: ${last_checked}"
           total_files=$(find _chapters -name "*.md" | wc -l)
           echo "   Total chapter files: $total_files"
-          
-          if [ $total_files -eq 0 ]; then
+          if [ "$total_files" -eq 0 ]; then
             echo "No chapter files found!"
             exit 1
           fi
-          
           echo "Chapters sync completed!"
-        
+
       - name: Verify chapters
         run: |
           echo "Verifying chapters..."
-          
           if [ ! -d "_chapters" ]; then
             echo "_chapters directory does not exist"
             exit 1
           fi
-          
           file_count=$(find _chapters -name "*.md" | wc -l)
           echo "Found $file_count chapter files"
-
           if [ $file_count -eq 0 ]; then
             echo "No chapter files found"
             exit 1
           fi
-
           echo "Chapters verification completed!"
-        
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.4'
           bundler-cache: true
-          
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
-        
+
       - name: Build with Jekyll via Rake
         run: bundle exec rake build
         env:
           JEKYLL_ENV: production
-          
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
