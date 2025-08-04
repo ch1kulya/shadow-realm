@@ -12,6 +12,8 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
 
+seo_description_max_words: 25
+
 collections:
   chapters:
     output: true
