@@ -46,13 +46,6 @@ jobs:
           JEKYLL_ENV: production
           CHAPTERS_BUCKET_URL: ${{ secrets.CHAPTERS_BUCKET_URL }}
           CHAPTERS_CONCURRENCY: ${{ vars.CHAPTERS_CONCURRENCY }}
-
-      - name: Save chapters cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: _chapters
-          key: chapters-${{ hashFiles('**/Gemfile.lock') }}-${{ hashFiles('_plugins/fetch_chapters.rb') }}
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
