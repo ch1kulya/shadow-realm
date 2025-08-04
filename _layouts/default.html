@@ -4,10 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  {% assign _desc = page.description | default: page.excerpt | default: site.description | strip_html | strip_newlines | truncate: 160 %}
 
-  {%- seo description=_desc title=false -%}
+  {%- seo title=false -%}
 
   <title>
       {% if page.url == "/" %}
