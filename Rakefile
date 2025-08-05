@@ -14,7 +14,7 @@ task :build do
 end
 
 desc "Serve site locally"
-task :serve do
+task :serve => :build do
   puts "Starting Jekyll development server..."
   
   Jekyll::Commands::Serve.process({
@@ -23,7 +23,9 @@ task :serve do
     'watch' => true,
     'incremental' => true,
     'livereload' => false,
-    'host' => 'localhost',
-    'port' => '4000'
+    'host' => '0.0.0.0',
+    'port' => '4000',
+    'ssl_cert' => './dev-cert.pem',
+    'ssl_key' => './dev-cert-key.pem'
   })
 end

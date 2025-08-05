@@ -2,3 +2,5 @@ _site/
 _chapters/
 Gemfile.lock
 .env
+dev-cert.pem
+dev-cert-key.pem
