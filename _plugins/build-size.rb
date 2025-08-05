@@ -16,8 +16,8 @@ Jekyll::Hooks.register :site, :post_write do |site|
     
     File.write(build_size_js_path, content)
     
-    puts "Build size: #{build_size_mb} MB"
+    puts "[build-size] Build size: #{build_size_mb} MB"
   else
-    puts "Warning: build-size.js not found at #{build_size_js_path}"
+    puts "[build-size] build-size.js not found at #{build_size_js_path}"
   end
 end

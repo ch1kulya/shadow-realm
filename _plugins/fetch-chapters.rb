@@ -1,7 +1,7 @@
 require 'net/http'
 require 'uri'
 require 'fileutils'
-require 'digest'
+require 'rexml/document'
 
 module ChaptersFetcher
   class Fetcher
@@ -14,116 +14,210 @@ module ChaptersFetcher
 
       @chapters_dir = File.join(site.source, '_chapters')
       FileUtils.mkdir_p(@chapters_dir)
+      
+      @metadata_file = File.join(@chapters_dir, '.metadata.json')
 
       @timeout = (ENV['CHAPTERS_TIMEOUT'] || '20').to_i
       @concurrency = [(ENV['CHAPTERS_CONCURRENCY'] || '8').to_i, 1].max
 
-      @max_consec_not_found = (ENV['CHAPTERS_MAX_CONSEC_NOT_FOUND'] || '10').to_i
-      @max_consec_errors = (ENV['CHAPTERS_MAX_CONSEC_ERRORS'] || '10').to_i
-
-      @starting_counter = detect_starting_counter
-      env_start = ENV['CHAPTERS_START_FROM']
-      if env_start && env_start =~ /^\d+$/
-        @starting_counter = env_start.to_i
-      end
-
       @downloaded = 0
       @updated = 0
-      @last_checked = nil
+      @unchanged = 0
+      @errors = 0
 
       @mutex = Mutex.new
-      @q_mutex = Mutex.new
     end
 
     def run
       puts "[chapters] Chapters dir: #{@chapters_dir}"
-      puts "[chapters] Starting from: #{@starting_counter}"
+      puts "[chapters] Fetching file list from S3..."
       puts "[chapters] Concurrency: #{@concurrency}, Timeout: #{@timeout}s"
 
-      not_found_streak = 0
-      error_streak = 0
-      counter = @starting_counter
-
-      loop do
-        batch = (0...@concurrency).map { |i| counter + i }
-        results = parallel_fetch(batch)
-
-        all_stopped = false
-
-        results.each do |res|
-          @last_checked = format('%04d.md', res[:counter])
-
-          case res[:status]
-          when :ok_downloaded
-            @downloaded += 1
-            not_found_streak = 0
-            error_streak = 0
-          when :ok_updated
-            @updated += 1
-            not_found_streak = 0
-            error_streak = 0
-          when :ok_unchanged
-            not_found_streak = 0
-            error_streak = 0
-          when :not_found
-            not_found_streak += 1
-            error_streak = 0
-          when :error
-            error_streak += 1
-          end
-
-          if not_found_streak >= @max_consec_not_found
-            puts "[chapters] Stopping after #{@max_consec_not_found} consecutive not-found/forbidden"
-            all_stopped = true
-            break
-          end
-
-          if error_streak >= @max_consec_errors
-            puts "[chapters] Stopping after #{@max_consec_errors} consecutive errors"
-            all_stopped = true
-            break
-          end
-        end
-
-        break if all_stopped
-
-        counter += @concurrency
+      files = fetch_file_list
+      
+      if files.empty?
+        puts "[chapters] No .md files found in bucket"
+        return
       end
+
+      puts "[chapters] Found #{files.length} .md files"
+      
+      local_metadata = load_metadata
+      
+      files_to_download = files.select { |file_info| needs_download?(file_info, local_metadata) }
+      files_to_skip = files.length - files_to_download.length
+      
+      puts "[chapters] Files to download: #{files_to_download.length}"
+      puts "[chapters] Files to skip (unchanged): #{files_to_skip}"
+      
+      if files_to_download.empty?
+        puts "[chapters] Nothing to download"
+        return
+      end
+      
+      files_to_download.each_slice(@concurrency) do |batch|
+        results = parallel_fetch(batch)
+        process_results(results)
+      end
+      
+      @unchanged = files_to_skip
+      
+      save_metadata(files)
+      
+      save_metadata(files)
 
       total_files = Dir.glob(File.join(@chapters_dir, '*.md')).length
 
-      puts ""
       puts "[chapters] Summary:"
       puts "  New files downloaded: #{@downloaded}"
       puts "  Files updated: #{@updated}"
-      puts "  Last checked: #{@last_checked}"
+      puts "  Files unchanged: #{@unchanged}"
+      puts "  Errors: #{@errors}"
       puts "  Total chapter files: #{total_files}"
 
       if total_files == 0
-        raise "No chapter files found!"
+        raise "  No chapter files found!"
       end
     end
 
     private
-
-    def detect_starting_counter
-      files = Dir.glob(File.join(@chapters_dir, '*.md'))
-      return 0 if files.empty?
-
-      last_file = files.sort_by { |f| f }.last
-      base = File.basename(last_file, '.md')
-      number = base.sub(/^0+/, '')
-      number = '0' if number.empty?
-      number.to_i
+    
+    def load_metadata
+      return {} unless File.exist?(@metadata_file)
+      
+      begin
+        require 'json'
+        JSON.parse(File.read(@metadata_file))
+      rescue => e
+        puts "[chapters] Warning: Failed to load metadata: #{e.message}"
+        {}
+      end
+    end
+    
+    def save_metadata(files)
+      begin
+        require 'json'
+        metadata = {}
+        files.each do |file_info|
+          metadata[file_info[:key]] = {
+            'etag' => file_info[:etag],
+            'size' => file_info[:size],
+            'last_modified' => file_info[:last_modified]
+          }
+        end
+        File.write(@metadata_file, JSON.pretty_generate(metadata))
+      rescue => e
+        puts "[chapters] Warning: Failed to save metadata: #{e.message}"
+      end
+    end
+    
+    def needs_download?(file_info, local_metadata)
+      filename = file_info[:key]
+      path = File.join(@chapters_dir, filename)
+      
+      return true unless File.exist?(path)
+      
+      saved_meta = local_metadata[filename]
+      return true unless saved_meta
+      
+      return true if saved_meta['etag'] != file_info[:etag]
+      return true if saved_meta['size'] != file_info[:size]
+      return true if saved_meta['last_modified'] != file_info[:last_modified]
+      
+      return true if File.size(path) != file_info[:size]
+      
+      false
     end
 
-    def parallel_fetch(counters)
-      threads = []
-      results = Array.new(counters.size)
+    def fetch_file_list
+      begin
+        all_files = []
+        marker = nil
+        page = 1
+        
+        loop do
+          url = @base_url
+          if marker
+            separator = url.include?('?') ? '&' : '?'
+            url = "#{url}#{separator}marker=#{URI.encode_www_form_component(marker)}"
+          end
+          
+          puts "[chapters] Requesting bucket listing page #{page}"
+          code, body = http_get(url)
+          
+          if code != 200
+            raise "  HTTP #{code} when fetching bucket listing page #{page}"
+          end
 
-      counters.each_with_index do |num, idx|
+          if body.nil? || body.empty?
+            raise "  Empty response when fetching bucket listing page #{page}"
+          end
+
+          # Парсим XML
+          doc = REXML::Document.new(body)
+          page_files = []
+          last_key = nil
+
+          # Извлекаем все Contents элементы
+          doc.elements.each('//Contents') do |contents|
+            key_element = contents.elements['Key']
+            next unless key_element
+            
+            key = key_element.text
+            last_key = key if key
+            next unless key && key.end_with?('.md')
+            
+            # Извлекаем метаданные
+            etag_element = contents.elements['ETag']
+            size_element = contents.elements['Size']
+            modified_element = contents.elements['LastModified']
+            
+            etag = etag_element ? etag_element.text.gsub('"', '') : nil
+            size = size_element ? size_element.text.to_i : nil
+            last_modified = modified_element ? modified_element.text : nil
+            
+            page_files << {
+              key: key,
+              etag: etag,
+              size: size,
+              last_modified: last_modified
+            }
+          end
+
+          all_files.concat(page_files)
+          puts "[chapters] Page #{page}: found #{page_files.length} .md files"
+          
+          is_truncated = false
+          truncated_element = doc.elements['//IsTruncated']
+          if truncated_element && truncated_element.text
+            is_truncated = truncated_element.text.downcase == 'true'
+          end
+          
+          break unless is_truncated
+          
+          if last_key
+            marker = last_key
+            page += 1
+          else
+            puts "[chapters] Warning: IsTruncated=true but no keys found, stopping"
+            break
+          end
+        end
+
+        all_files.sort_by { |f| f[:key] }
+      rescue => e
+        puts "[chapters] Failed to fetch file list: #{e.class} #{e.message}"
+        raise
+      end
+    end
+
+    def parallel_fetch(file_infos)
+      threads = []
+      results = Array.new(file_infos.size)
+
+      file_infos.each_with_index do |file_info, idx|
         threads << Thread.new do
-          results[idx] = fetch_one(num)
+          results[idx] = fetch_one(file_info)
         end
       end
 
@@ -131,49 +225,53 @@ module ChaptersFetcher
       results
     end
 
-    def fetch_one(counter)
-      formatted = format('%04d', counter)
-      url = "#{@base_url}/#{formatted}.md"
-      path = File.join(@chapters_dir, "#{formatted}.md")
-      tmp = File.join(@chapters_dir, ".#{formatted}.md.tmp")
+    def fetch_one(file_info)
+      filename = file_info[:key]
+      url = "#{@base_url}/#{filename}"
+      path = File.join(@chapters_dir, filename)
+      tmp = File.join(@chapters_dir, ".#{filename}.tmp")
 
       begin
         code, body = http_get(url)
 
         if code == 200
           if body.nil? || body.empty?
-            puts "  ! Empty body for #{formatted}.md (200)"
-            return { counter: counter, status: :error }
+            return { filename: filename, status: :error }
           end
 
           if File.exist?(path)
-            existing = File.binread(path)
-            if existing == body
-              return { counter: counter, status: :ok_unchanged }
-            else
-              File.binwrite(tmp, body)
-              FileUtils.mv(tmp, path)
-              puts "  ~ Updated #{formatted}.md"
-              return { counter: counter, status: :ok_updated }
-            end
+            File.binwrite(tmp, body)
+            FileUtils.mv(tmp, path)
+            return { filename: filename, status: :ok_updated }
           else
             File.binwrite(tmp, body)
             FileUtils.mv(tmp, path)
-            puts "  + Downloaded #{formatted}.md"
-            return { counter: counter, status: :ok_downloaded }
+            return { filename: filename, status: :ok_downloaded }
           end
-        elsif code == 404 || code == 403
-          puts "  - Not found #{formatted}.md (#{code})" unless File.exist?(path)
-          return { counter: counter, status: :not_found }
         else
-          puts "  ! HTTP #{code} for #{formatted}.md"
-          return { counter: counter, status: :error }
+          return { filename: filename, status: :error }
         end
       rescue => e
-        puts "  ! Error fetching #{formatted}.md: #{e.class} #{e.message}"
-        return { counter: counter, status: :error }
+        return { filename: filename, status: :error }
       ensure
         FileUtils.rm_f(tmp)
+      end
+    end
+
+    def process_results(results)
+      @mutex.synchronize do
+        results.each do |res|
+          case res[:status]
+          when :ok_downloaded
+            @downloaded += 1
+          when :ok_updated
+            @updated += 1
+          when :ok_unchanged
+            @unchanged += 1
+          when :error
+            @errors += 1
+          end
+        end
       end
     end
 

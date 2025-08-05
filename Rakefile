@@ -4,18 +4,19 @@ Dotenv.load
 
 desc "Build and minify"
 task :build do
-  puts "Building Jekyll site..."
+  puts "[rake] Building Jekyll site..."
 
   require_relative '_plugins/fetch-chapters'
   require_relative '_plugins/minify'
   require_relative '_plugins/build-size'
   
   Jekyll::Site.new(Jekyll.configuration).process
+  puts "[rake] Done!"
 end
 
 desc "Serve site locally"
 task :serve => :build do
-  puts "Starting Jekyll development server..."
+  puts "[rake] Starting Jekyll development server..."
   
   Jekyll::Commands::Serve.process({
     'source' => '.',

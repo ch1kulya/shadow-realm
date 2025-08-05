@@ -3,7 +3,7 @@ require 'uglifier'
 require 'sassc'
 
 Jekyll::Hooks.register :site, :post_write do |site|
-  puts "🚀 Starting minification process..."
+  puts "[minify] Starting minification process..."
   
   html_count = 0
   css_count = 0
@@ -36,7 +36,7 @@ Jekyll::Hooks.register :site, :post_write do |site|
       total_saved += saved
       html_count += 1
     rescue => e
-      puts "Error minifying HTML #{file}: #{e.message}"
+      puts "  Error minifying HTML #{file}: #{e.message}"
     end
   end
   
@@ -60,7 +60,7 @@ Jekyll::Hooks.register :site, :post_write do |site|
       total_saved += saved
       css_count += 1
     rescue => e
-      puts "Error minifying CSS #{file}: #{e.message}"
+      puts "  Error minifying CSS #{file}: #{e.message}"
     end
   end
   
@@ -90,11 +90,11 @@ Jekyll::Hooks.register :site, :post_write do |site|
       total_saved += saved
       js_count += 1
     rescue => e
-      puts "Error minifying JS #{file}: #{e.message}"
+      puts "  Error minifying JS #{file}: #{e.message}"
     end
   end
   
-  puts "\n✅ Minification completed!"
-  puts "   Processed: #{html_count} HTML, #{css_count} CSS, #{js_count} JS files"
-  puts "   Total saved: #{(total_saved / 1024.0).round(2)} KB"
+  puts "[minify] Minification completed!"
+  puts "  Processed: #{html_count} HTML, #{css_count} CSS, #{js_count} JS files"
+  puts "  Total saved: #{(total_saved / 1024.0).round(2)} KB"
 end
