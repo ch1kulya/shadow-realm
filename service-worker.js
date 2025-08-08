@@ -128,17 +128,19 @@ self.addEventListener('fetch', event => {
     const { url } = event.request;
 
     if (url.includes('/chapters/')) {
-        // Главы: если оффлайн-кеш уже существует — берём из него; новые страницы НЕ кладём в кеш
+        // Отдаём кеш сразу (если он есть) для мгновенной загрузки, затем пробуем сеть и обновляем кеш
         event.respondWith(
             caches.open(CHAPTERS_CACHE).then(async cache => {
                 const cached = await cache.match(event.request);
-                try {
-                    // Всегда пробуем сеть, не сохраняем ответ
-                    return await fetch(event.request);
-                } catch (_) {
-                    // Если сети нет, пробуем отдать то, что уже скачано кнопкой «Скачать»
-                    return cached;
-                }
+                
+                const networkFetch = fetch(event.request).then(response => {
+                    if (response.ok) {
+                        cache.put(event.request, response.clone());
+                    }
+                    return response;
+                }).catch(_ => cached);
+
+                return cached || networkFetch;
             })
         );
         return;
