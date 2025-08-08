@@ -54,22 +54,24 @@ async function processCachingQueue() {
     const cache = await caches.open(CHAPTERS_CACHE);
     const initialTotal = (await cache.keys()).length + cachingQueue.length;
 
+    const concurrency = 32; // количество одновременных загрузок
+    let completed = 0;
+
     while (cachingQueue.length > 0) {
-        const urlToCache = cachingQueue.shift(); // Берем первый элемент и удаляем из очереди
-        await safeCacheAdd(cache, new Request(urlToCache));
-        
-        const currentCachedCount = initialTotal - cachingQueue.length;
-        
-        // Отправляем прогресс не слишком часто
-        if (cachingQueue.length % 5 === 0 || cachingQueue.length === 0) {
-            broadcastMessage({
-                type: 'caching-progress',
-                count: currentCachedCount,
-                total: initialTotal
-            });
-        }
+        const batch = cachingQueue.splice(0, concurrency);
+        await Promise.all(batch.map(urlToCache => safeCacheAdd(cache, new Request(urlToCache)).then(() => {
+            completed++;
+            const currentCachedCount = initialTotal - cachingQueue.length - (batch.length - completed % batch.length);
+            if (completed % 20 === 0 || cachingQueue.length === 0) {
+                broadcastMessage({
+                    type: 'caching-progress',
+                    count: currentCachedCount,
+                    total: initialTotal
+                });
+            }
+        })));
     }
-    
+
     isCaching = false;
     console.log('Service Worker: Caching queue processed.');
     broadcastMessage({ type: 'caching-finished' });
