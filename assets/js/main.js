@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastScrollTop = 0;
     const PANEL_ANIMATION_DURATION = 200; // ms
 
-    // --- Логика оффлайн-доступа ---
+    // --- Логика офлайн-доступа ---
     const offlineBtn = document.getElementById('offline-download-btn');
     const swPath = '/service-worker.js';
 
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'complete':
                 offlineBtn.disabled = true;
                 offlineBtn.classList.add('active');
-                offlineBtn.textContent = `Оффлайн-доступ активен`;
+                offlineBtn.textContent = `Офлайн-доступ активен`;
                 break;
             case 'error':
                 offlineBtn.disabled = false;
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ['offline-status', 'offline-access-complete', 'offline-total-size', 'offline-progress-count', 'offline-progress-total'].forEach(k => localStorage.removeItem(k));
                         break;
                     case 'update-error':
-                        console.error("Не удалось проверить обновления. Существующий оффлайн-кэш остаётся доступным.");
+                        console.error("Не удалось проверить обновления. Существующий офлайн-кэш остаётся доступным.");
                         // Ошибка обновления, но существующий кэш в порядке. Просто возвращаемся к состоянию "завершено".
                         updateOfflineButtonState('complete');
                         localStorage.setItem('offline-status', 'complete');
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 navigator.serviceWorker.controller.postMessage({ action: 'cache-all' });
             } else {
                 // Если контроллер еще не активен, возможно, страница загрузилась до активации SW
-                alert('Сервис для оффлайн-доступа еще не готов. Пожалуйста, перезагрузите страницу и попробуйте снова.');
+                alert('Сервис для офлайн-доступа еще не готов. Пожалуйста, перезагрузите страницу и попробуйте снова.');
             }
         });
     }
