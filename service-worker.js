@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'static-v18';
+const STATIC_CACHE = 'static-v20';
 const CHAPTERS_CACHE = 'chapters-cache';
 
 const STATIC_ASSETS = [
@@ -7,6 +7,8 @@ const STATIC_ASSETS = [
     '/assets/js/main.js',
     '/assets/js/router.js',
     '/assets/js/theme-init.js',
+    '/assets/js/components/reader-header.js',
+    '/assets/index/chapters.json',
     '/favicon.ico',
     '/404.html',
     '/robots.txt',
@@ -14,7 +16,7 @@ const STATIC_ASSETS = [
 ];
 
 const FONT_ASSETS = [
-    'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700&family=Inter:wght@400;500;700&display=swap',
+    'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap',
 ];
 
 let cachingQueue = [];
@@ -80,7 +82,7 @@ async function processCachingQueue() {
 async function cacheAll() {
     const cache = await caches.open(CHAPTERS_CACHE);
     try {
-        const response = await fetch('/assets/js/chapters.json');
+        const response = await fetch('/assets/index/chapters.json');
         const chapters = await response.json();
         const chapterUrls = chapters.map(ch => new URL(ch.url, self.location.origin).href);
 

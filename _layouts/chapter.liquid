@@ -1,0 +1,31 @@
+---
+layout: default
+---
+
+<div class="reader-container" data-chapter-url="{{ page.url }}" data-chapter-title="{{ page.title | escape }}" data-chapter-number="{{ page.chapter_number }}">
+  <reader-header></reader-header>
+  <main class="reader-main">
+    <article class="chapter-content">
+      <h1>Глава {{ page.chapter_number }}: {{ page.title }}</h1>
+      {{ content }}
+    </article>
+    <div id="content-end-sentinel"></div>
+    <div class="floating-nav">
+      {% if page.previous %}
+        <a href="{{ page.previous.url | relative_url }}" class="nav-arrow" title="Предыдущая глава">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </a>
+      {% else %}
+        <div></div>
+      {% endif %}
+      {% if page.next %}
+         <a href="{{ page.next.url | relative_url }}" class="nav-arrow" title="Следующая глава">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      {% endif %}
+    </div>
+  </main>
+  <div class="reader-footer">© ch1ka 2025</div>
+  <div class="panel-overlay"></div>
+</div>
+<script src="{{ '/assets/js/build-size.js' | relative_url }}" defer></script>

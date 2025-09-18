@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadChapters() {
         try {
-            const response = await fetch('/assets/js/chapters.json');
+            const response = await fetch('/assets/index/chapters.json');
             allChapters = await response.json();
             renderChapterList(allChapters);
         } catch (error) {

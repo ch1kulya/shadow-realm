@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Переводчики
+permalink: /translators
 ---
 
 # О переводчиках
