@@ -1,4 +1,4 @@
-const STATIC_CACHE = 'static-v18';
+const STATIC_CACHE = 'static-v19';
 const CHAPTERS_CACHE = 'chapters-cache';
 
 const STATIC_ASSETS = [
@@ -80,7 +80,7 @@ async function processCachingQueue() {
 async function cacheAll() {
     const cache = await caches.open(CHAPTERS_CACHE);
     try {
-        const response = await fetch('/assets/js/chapters.json');
+        const response = await fetch('/assets/index/chapters.json');
         const chapters = await response.json();
         const chapterUrls = chapters.map(ch => new URL(ch.url, self.location.origin).href);
 

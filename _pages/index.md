@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Главная
+permalink: /
 ---
 <div class="welcome-container">
   <div class="stats-container">

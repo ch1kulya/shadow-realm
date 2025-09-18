@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Логика офлайн-доступа ---
     const offlineBtn = document.getElementById('offline-download-btn');
-    const swPath = '/service-worker.js';
+    const swPath = '/assets/js/sw.js';
 
     function getTotalSizeBytes() {
         const buildSizeMB = window.BUILD_SIZE_MB || 0;
@@ -573,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadChapters() {
         try {
-            const response = await fetch('/assets/js/chapters.json');
+            const response = await fetch('/assets/index/chapters.json');
             allChapters = await response.json();
             renderChapterList(allChapters);
         } catch (error) {

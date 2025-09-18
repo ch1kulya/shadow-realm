@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Правообладателям
+permalink: /rights
 ---
 
 # Правообладателям

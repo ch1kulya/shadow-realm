@@ -1,6 +1,7 @@
 ---
 layout: page
 title: DMCA
+permalink: /dmca
 ---
 
 # Digital Millennium Copyright Act (DMCA) Notice

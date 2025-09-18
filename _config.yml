@@ -27,6 +27,8 @@ collections:
     output: true
     permalink: /chapters/:name/
     sort_by: name
+  pages:
+    output: true
 
 sass:
   load_paths:
@@ -36,3 +38,6 @@ sass:
 exclude:
   - Rakefile
   - vendor/
+
+include:
+  - "*.liquid"
