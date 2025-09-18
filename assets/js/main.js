@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Логика офлайн-доступа ---
     const offlineBtn = document.getElementById('offline-download-btn');
-    const swPath = '/assets/js/sw.js';
+    const swPath = '/service-worker.js';
 
     function getTotalSizeBytes() {
         const buildSizeMB = window.BUILD_SIZE_MB || 0;
