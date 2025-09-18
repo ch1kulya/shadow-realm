@@ -38,6 +38,3 @@ sass:
 exclude:
   - Rakefile
   - vendor/
-
-include:
-  - "*.liquid"
