@@ -8,7 +8,6 @@ const STATIC_ASSETS = [
     '/assets/js/router.js',
     '/assets/js/theme-init.js',
     '/assets/js/components/reader-header.js',
-    '/assets/index/chapters.json',
     '/favicon.ico',
     '/404.html',
     '/robots.txt',
