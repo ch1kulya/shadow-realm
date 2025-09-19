@@ -8,7 +8,6 @@ const STATIC_ASSETS = [
     '/assets/js/router.js',
     '/assets/js/theme-init.js',
     '/assets/js/components/reader-header.js',
-    '/assets/index/chapters.json',
     '/favicon.ico',
     '/404.html',
     '/robots.txt',
@@ -32,7 +31,6 @@ async function broadcastMessage(message) {
     });
 }
 
-// Функция для безопасного добавления в кэш
 async function safeCacheAdd(cache, request) {
     try {
         const response = await fetch(request, { redirect: 'follow' });
@@ -56,7 +54,7 @@ async function processCachingQueue() {
     const cache = await caches.open(CHAPTERS_CACHE);
     const initialTotal = (await cache.keys()).length + cachingQueue.length;
 
-    const concurrency = 32; // количество одновременных загрузок
+    const concurrency = 32;
     let completed = 0;
 
     while (cachingQueue.length > 0) {
@@ -107,9 +105,22 @@ async function cacheAll() {
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(STATIC_CACHE).then(cache => {
-            return cache.addAll([...STATIC_ASSETS, ...FONT_ASSETS]);
-        })
+        Promise.all([
+            caches.open(STATIC_CACHE).then(cache => {
+                return cache.addAll([...STATIC_ASSETS, ...FONT_ASSETS]);
+            }),
+            caches.open(CHAPTERS_CACHE).then(cache => {
+                return fetch('/assets/index/chapters.json')
+                    .then(response => {
+                        if (response.ok) {
+                            return cache.put('/assets/index/chapters.json', response);
+                        }
+                    })
+                    .catch(err => {
+                        console.warn('Service Worker: Could not cache chapters.json during install', err);
+                    });
+            })
+        ])
     );
 });
 
@@ -129,8 +140,37 @@ self.addEventListener('fetch', event => {
 
     const { url } = event.request;
 
+    if (url.includes('/assets/index/chapters.json')) {
+        event.respondWith(
+            fetch(event.request)
+                .then(async response => {
+                    if (response.ok) {
+                        const cache = await caches.open(CHAPTERS_CACHE);
+                        cache.put(event.request, response.clone());
+                        console.log('Service Worker: chapters.json updated from network');
+                        return response;
+                    }
+                    throw new Error(`Network response not ok: ${response.status}`);
+                })
+                .catch(async error => {
+                    console.log('Service Worker: chapters.json network failed, trying cache', error.message);
+                    const cache = await caches.open(CHAPTERS_CACHE);
+                    const cached = await cache.match(event.request);
+                    if (cached) {
+                        console.log('Service Worker: chapters.json served from cache');
+                        return cached;
+                    }
+                    console.warn('Service Worker: chapters.json not found in cache');
+                    return new Response('[]', {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                })
+        );
+        return;
+    }
+
     if (url.includes('/chapters/')) {
-        // Отдаём кеш сразу (если он есть) для мгновенной загрузки, затем пробуем сеть и обновляем кеш
         event.respondWith(
             caches.open(CHAPTERS_CACHE).then(async cache => {
                 const cached = await cache.match(event.request);
@@ -148,7 +188,6 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // Статика – Stale-while-revalidate из STATIC_CACHE
     event.respondWith(
         caches.open(STATIC_CACHE).then(async cache => {
             const cached = await cache.match(event.request);
@@ -170,7 +209,6 @@ self.addEventListener('message', (event) => {
             event.waitUntil(cacheAll());
             break;
         case 'check-for-updates':
-            // Просто пытаемся докачать недостающие главы
             if (navigator.onLine) {
                 event.waitUntil(cacheAll());
             }
