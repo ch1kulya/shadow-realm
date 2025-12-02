@@ -1,4 +1,7 @@
-User-agent: *
-Disallow:
+User-agent: Googlebot
+Disallow: /chapters/*
 
-Sitemap: https://shadowslave.ru/sitemap.xml 
+User-agent: *
+Allow: /
+
+Sitemap: https://shadowslave.ru/sitemap.xml
