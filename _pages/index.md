@@ -3,6 +3,7 @@ layout: default
 title: Главная
 permalink: /
 ---
+
 <div class="welcome-container">
   <div class="stats-container">
     <span class="status-dot"></span>
@@ -33,14 +34,7 @@ permalink: /
       {% endif %}
     </div>
   </main>
-  <div class="welcome-footer">
-    <a href="{{ '/translators' | relative_url }}">О переводчиках</a>
-    <a href="{{ '/dmca' | relative_url }}">DMCA</a>
-    <a href="{{ '/rights' | relative_url }}">Правообладателям</a>
-    <a href="{{ '/privacy' | relative_url }}">Конфиденциальность</a>
-  </div>
 </div>
-<div class="reader-footer">© ch1ka 2025</div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const startReadingBtn = document.querySelector('.btn-start-reading');
@@ -61,4 +55,4 @@ permalink: /
       console.error("Не удалось обработать закладки для кнопки 'Начать читать':", e);
     }
   });
-</script> 
+</script>

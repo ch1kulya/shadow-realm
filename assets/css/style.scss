@@ -6,26 +6,22 @@
 }
 
 :root {
-    // Цветовая схема (светлая тема по умолчанию)
     --bg-color: #fdfaf1;
     --text-color: #3d3a35;
-    --primary-color: #7a6a5b; // Для акцентов, кнопок
+    --primary-color: #7a6a5b;
     --panel-bg-color: #f6f1e7;
     --border-color: #e5e0d7;
 
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 
-    // Переменные для шрифтов
-    --font-family-lora: 'Lora', serif;
-    --font-family-inter: 'Inter', sans-serif;
-    --font-family-roboto: 'Roboto', sans-serif;
-    --font-family-merriweather: 'Merriweather', serif;
-    
-    /* Алиасы для обратной совместимости */
+    --font-family-lora: "Lora", serif;
+    --font-family-inter: "Inter", sans-serif;
+    --font-family-roboto: "Roboto", sans-serif;
+    --font-family-merriweather: "Merriweather", serif;
+
     --font-family-serif: var(--font-family-lora);
     --font-family-sans-serif: var(--font-family-inter);
-    
-    // Начальные значения для настроек
+
     --reader-font-size: 18px;
     --reader-line-height: 1.7;
     --reader-text-align: left;
@@ -34,7 +30,6 @@
 }
 
 :root.dark-theme {
-    // Цветовая схема (темная тема)
     --bg-color: #242220;
     --text-color: #c8c3b9;
     --primary-color: #928373;
@@ -52,6 +47,13 @@ body {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+hr {
+    border: 1px solid var(--border-color);
 }
 
 h1 {
@@ -72,16 +74,25 @@ subtitle {
     padding: 1rem;
 }
 
-/* Стили для главной страницы */
+/* Pages */
+.welcome-container,
+.reader-container,
+.page-container,
+.not-found-container {
+    flex-grow: 1;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 100vh;
+}
+
 .welcome-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    min-height: 100dvh;
+    justify-content: center;
     text-align: center;
     padding: 2rem;
-    box-sizing: border-box;
+    padding-bottom: 4rem;
 }
 
 .book-container {
@@ -145,8 +156,8 @@ subtitle {
     border-radius: 12px;
     border: 1px solid var(--border-color);
     color: var(--text-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
     margin-bottom: 3rem;
 }
 
@@ -154,19 +165,21 @@ subtitle {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: #28a745;
-    animation: pulse 2s infinite;
+    background-color: #22c55e;
+    opacity: 1;
+    --shadow-color: rgba(34, 197, 94, 0.1);
+    animation: infinite 2s pulse;
 }
 
 @keyframes pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        box-shadow: 0 0 0 2px var(--shadow-color);
     }
     70% {
-        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+        box-shadow: 0 0 0 4px var(--shadow-color);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        box-shadow: 0 0 0 2px var(--shadow-color);
     }
 }
 
@@ -186,8 +199,10 @@ subtitle {
     padding: 1rem 2.5rem;
     border-radius: 12px;
     border: 1px solid var(--border-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
     margin-bottom: 0;
 }
 
@@ -197,13 +212,13 @@ subtitle {
     aspect-ratio: 3 / 4;
     border-radius: 12px;
     border: 1px solid var(--border-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .cover-container {
     display: flex;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
     flex-direction: column;
     gap: 20px;
     margin-bottom: 0.7rem;
@@ -214,32 +229,7 @@ subtitle {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.welcome-footer {
-    position: relative;
-    bottom: auto;
-    font-size: 0.9rem;
-    width: 100%;
-    text-align: center;
-    padding: 0 1rem;
-    box-sizing: border-box;
-    justify-content: center;
-}
-
-.welcome-footer a {
-    color: var(--text-color);
-    text-decoration: none;
-    opacity: 0.7;
-    margin: 0 0.5rem;
-    transition: opacity 0.2s ease;
-}
-
 @media (max-width: 768px) {
-    .welcome-footer {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
     .title-container {
         flex-direction: column;
         gap: 0rem;
@@ -249,10 +239,6 @@ subtitle {
     .cover-container {
         flex-direction: row;
         margin-bottom: 1.5rem !important;
-    }
-
-    .welcome-footer a {
-        margin: 0;
     }
 }
 
@@ -286,37 +272,42 @@ subtitle {
 
 .page-container ul,
 .page-container ol {
-  padding-left: 1.25rem;
-  margin: 0.75rem 0 1rem;
+    padding-left: 1.25rem;
+    margin: 0.75rem 0 1rem;
 }
 .page-container li + li {
-  margin-top: 0.25rem;
+    margin-top: 0.25rem;
 }
 
-.page-container p a, li a{
-  color: var(--primary-color);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s ease, opacity 0.2s ease;
+.page-container p a,
+li a {
+    color: var(--primary-color);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition:
+        border-color 0.2s ease,
+        opacity 0.2s ease;
 }
-.page-container p a:hover, li a:hover {
-  border-bottom-color: var(--primary-color);
-  opacity: 0.85;
+.page-container p a:hover,
+li a:hover {
+    border-bottom-color: var(--primary-color);
+    opacity: 0.85;
 }
-.page-container p a:focus-visible, li a:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
+.page-container p a:focus-visible,
+li a:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
 .page-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
 }
 
 @media (max-width: 490px) {
     .welcome-container {
-        padding: 2rem 1.5rem;
+        padding: 2rem 1.5rem 5rem;
     }
     .page-container {
         padding: 1rem;
@@ -336,13 +327,9 @@ subtitle {
     }
 }
 
-.welcome-footer a:hover {
-    opacity: 1;
-}
-
-/* --- Стили для читалки --- */
+/* Reader */
 .reader-container {
-    padding-top: 80px; /* Высота хедера */
+    padding-top: 80px;
 }
 
 .reader-header {
@@ -352,22 +339,24 @@ subtitle {
     transform: translateX(-50%);
     width: 90%;
     max-width: 400px;
-    
+
     background-color: var(--panel-bg-color);
     border: 1px solid var(--border-color);
     z-index: 100;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s; /* Анимация появления/исчезновения */
-    overflow: hidden; /* Скрываем все, что выходит за пределы скругленных углов */
+    transition:
+        transform 0.3s ease-in-out,
+        box-shadow 0.3s;
+    overflow: hidden;
 }
 
 .reader-header.hidden {
-    transform: translate(-50%, -150%); /* Сдвигаем хедер вверх за экран */
+    transform: translate(-50%, -150%);
 }
 
 .reader-header.panel-active {
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 .header-buttons {
@@ -416,7 +405,7 @@ subtitle {
 }
 
 .bookmark-icon-filled {
-    display: none; /* Скрыта по умолчанию */
+    display: none;
 }
 
 #bookmark-btn.bookmarked .bookmark-icon-outline {
@@ -443,7 +432,8 @@ subtitle {
 }
 
 @supports (hyphenate-limit-chars: 9 4 4) {
-    .chapter-content, .description {
+    .chapter-content,
+    .description {
         hyphens: auto;
         -webkit-hyphens: auto;
         -ms-hyphens: auto;
@@ -451,8 +441,10 @@ subtitle {
     }
 }
 
-@supports (-webkit-hyphenate-limit-before: 4) and (-webkit-hyphenate-limit-after: 4) {
-    .chapter-content, .description {
+@supports (-webkit-hyphenate-limit-before: 4) and
+    (-webkit-hyphenate-limit-after: 4) {
+    .chapter-content,
+    .description {
         hyphens: auto;
         -webkit-hyphens: auto;
         -ms-hyphens: auto;
@@ -461,8 +453,11 @@ subtitle {
     }
 }
 
-@supports (not (hyphenate-limit-chars: 9 4 4)) and (not (-webkit-hyphenate-limit-before: 4)) and (not (-webkit-hyphenate-limit-after: 4)) {
-    .chapter-content, .description {
+@supports (not (hyphenate-limit-chars: 9 4 4)) and
+    (not (-webkit-hyphenate-limit-before: 4)) and
+    (not (-webkit-hyphenate-limit-after: 4)) {
+    .chapter-content,
+    .description {
         hyphens: none;
         -webkit-hyphens: none;
         -ms-hyphens: none;
@@ -493,20 +488,23 @@ subtitle {
     text-decoration: none;
     max-width: 45%;
 }
-.nav-next { text-align: right; }
+.nav-next {
+    text-align: right;
+}
 
-/* Стили оверлея */
 .panel-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.1);
     z-index: 99;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s;
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s;
 }
 
 .panel-overlay.active {
@@ -514,15 +512,13 @@ subtitle {
     visibility: visible;
 }
 
-/* Новые стили для панелей, вытекающих из хедера */
 #panels-container {
-    height: 0; /* Используем height для анимирования */
+    height: 0;
     transition: height 0.2s ease-in-out;
     border-top: 1px solid transparent;
 }
 
 #panels-container.visible {
-    /* Высоту выставляем динамически через JS */
     border-top-color: var(--border-color);
 }
 
@@ -531,7 +527,6 @@ subtitle {
     padding: 1rem;
     padding-top: 0.5rem;
     height: 100%;
-    /* Скролл внутри панелей больше не нужен */
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -542,32 +537,50 @@ subtitle {
 
 .panel.closing {
     animation: panel-hide 0.2s ease-in forwards;
-    overflow: hidden; /* Скрываем скроллбар во время закрытия */
+    overflow: hidden;
 }
 
-/* Дополнительный класс для временного скрытия скроллбара во время анимаций */
 .panel-scroll-hidden {
     overflow: hidden !important;
 }
 
 @keyframes panel-show {
-    from { opacity: 0; transform: translateY(-15px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 @keyframes panel-hide {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-15px); }
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
 }
 
-/* --- Новые прозрачные анимации для переключения содержимого --- */
 @keyframes panel-fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes panel-fade-out {
-    from { opacity: 1; }
-    to { opacity: 0; }
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }
 
 .panel.fade-in {
@@ -576,10 +589,10 @@ subtitle {
 
 .panel.fade-out {
     animation: panel-fade-out 0.2s ease-in forwards;
-    overflow: hidden; /* Скрываем скроллбар во время анимации */
+    overflow: hidden;
 }
 
-/* Стили для панели содержания */
+/* TOC */
 .panel-content {
     display: flex;
     flex-direction: column;
@@ -605,14 +618,14 @@ subtitle {
     margin: 0;
 }
 
-/* --- Стили для иконок-переключателей --- */
+/* Switches */
 .icon-group {
     display: flex;
     gap: 0;
 }
 
 .icon-group button {
-    flex-grow: 1; 
+    flex-grow: 1;
     height: 38px;
     background: transparent;
     border: 1px solid var(--border-color);
@@ -654,14 +667,20 @@ subtitle {
     stroke: currentColor;
 }
 
-/* --- Стили для ползунка --- */
+/* Slider */
 .slider-wrapper {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
-.font-size-label-sm { font-size: 0.8em; opacity: 0.9; }
-.font-size-label-lg { font-size: 1.2em; opacity: 0.9; }
+.font-size-label-sm {
+    font-size: 0.8em;
+    opacity: 0.9;
+}
+.font-size-label-lg {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
 
 .slider-wrapper input[type="range"] {
     -webkit-appearance: none;
@@ -684,7 +703,7 @@ subtitle {
     border-radius: 50%;
     border: 4px solid var(--panel-bg-color);
     box-shadow: 0 0 0 1px var(--border-color);
-    margin-top: -1px; /* Визуальная коррекция положения */
+    margin-top: -1px;
 }
 :root.dark-theme .slider-wrapper input[type="range"]::-webkit-slider-thumb {
     border-color: var(--panel-bg-color);
@@ -703,7 +722,7 @@ subtitle {
     border-color: var(--panel-bg-color);
 }
 
-/* --- Селект шрифтов --- */
+/* Fonts selector */
 .custom-select-wrapper {
     position: relative;
     width: 100%;
@@ -722,52 +741,55 @@ subtitle {
     transition: box-shadow 0.2s;
 }
 .custom-select-wrapper::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 1rem;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid var(--text-color);
-  pointer-events: none;
-  opacity: 0.7;
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--text-color);
+    pointer-events: none;
+    opacity: 0.7;
 }
 .font-select:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: inset 0 0 0 1px var(--primary-color);
 }
-.font-select option { 
-    background: var(--panel-bg-color); 
+.font-select option {
+    background: var(--panel-bg-color);
     color: var(--text-color);
 }
 
-/* --- Ползунок размера шрифта --- */
+/* Font size slider */
 .setting-item.range-slider input[type="range"],
 .setting-item.range-slider input[type="range"]::-webkit-slider-thumb,
 .setting-item.range-slider input[type="range"]::-moz-range-thumb {
     display: none;
 }
 
-/* Удаляем старые стили, которые больше не нужны */
-.settings-grid, .setting-item, .setting-item > svg { display: none; }
+.settings-grid,
+.setting-item,
+.setting-item > svg {
+    display: none;
+}
 
-/* Новая плавающая навигация */
 .floating-nav {
     position: fixed;
-    /* bottom: */
     left: 0;
     right: 0;
     display: flex;
     justify-content: space-between;
     padding: 0 1rem;
     z-index: 50;
-    pointer-events: none; /* Клики проходят сквозь контейнер */
+    pointer-events: none;
     opacity: 0;
-    transition: opacity 0.3s ease-in-out, bottom 0.005s linear;
+    transition:
+        opacity 0.3s ease-in-out,
+        bottom 0.005s linear;
 }
 
 .floating-nav.visible,
@@ -791,7 +813,7 @@ subtitle {
     align-items: center;
     pointer-events: all;
     transition: transform 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .nav-arrow:hover {
@@ -804,51 +826,7 @@ subtitle {
     stroke: var(--text-color);
 }
 
-/* --- Стили для подсказки --- */
-.hint-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 500;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
-}
-
-.hint-overlay.visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.hint-box {
-    background: var(--panel-bg-color);
-    padding: 2rem;
-    border-radius: 12px;
-    text-align: center;
-    max-width: 320px;
-}
-
-.hint-box h3 {
-    margin-top: 0;
-}
-
-#dismiss-hint-btn {
-    background: var(--primary-color);
-    color: var(--bg-color);
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 1rem;
-}
-
-/* Стилизация скроллбара */
+/* Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -865,17 +843,6 @@ subtitle {
     background-color: var(--primary-color);
 }
 
-.reader-footer {
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-color);
-    opacity: 0.25;
-    margin-top: 0rem;
-    margin-bottom: 7.5rem;
-    user-select: none;
-    pointer-events: none;
-}
-
 .toc-bookmark-icon {
     flex-shrink: 0;
     opacity: 0.5;
@@ -883,7 +850,7 @@ subtitle {
     padding-left: 0.5rem;
 }
 
-/* Стили для панели настроек (переработанные) */
+/* Settings panel */
 #settings-panel .panel-content {
     display: flex;
     flex-direction: column;
@@ -891,10 +858,10 @@ subtitle {
 }
 
 #toc-panel .panel-content {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden; /* Предотвращаем любые выступы */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 .toc-controls {
@@ -905,7 +872,7 @@ subtitle {
 
 .toc-controls .search-input {
     width: 100%;
-    box-sizing: border-box; /* Учитываем padding и border в ширине */
+    box-sizing: border-box;
     border: 1px solid var(--border-color);
     background: transparent;
     color: var(--text-color);
@@ -939,7 +906,7 @@ subtitle {
     opacity: 0.6;
 }
 .toc-controls .sort-btn:hover {
-    background-color: rgba(0,0,0,0.04);
+    background-color: rgba(0, 0, 0, 0.04);
 }
 
 .chapters-list {
@@ -951,11 +918,11 @@ subtitle {
 }
 
 .chapters-list li.current a {
-    background-color: rgba(0,0,0,0.02);
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 :root.dark-theme .chapters-list li.current a {
-    background-color: rgba(255,255,255,0.04);
+    background-color: rgba(255, 255, 255, 0.04);
 }
 
 .chapters-list a {
@@ -970,7 +937,7 @@ subtitle {
 }
 
 .chapters-list a:hover {
-    background-color: rgba(0,0,0,0.05);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .chapter-num {
@@ -999,14 +966,14 @@ subtitle {
     opacity: 1;
 }
 
-/* --- Стили для страницы 404 --- */
+/* 404 page */
 .not-found-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    min-height: 100dvh;
+    min-height: 100vh;
     padding: 2rem;
     box-sizing: border-box;
 }
@@ -1030,63 +997,80 @@ subtitle {
     font-weight: 500;
     text-decoration: none;
     padding: 1rem 2.5rem;
+    margin: 2rem;
     border-radius: 12px;
     border: 1px solid var(--border-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 .btn-back-home:hover {
     transform: scale(1.05);
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Стили для кнопки оффлайн-доступа */
+/* Offline button */
 .btn-full-width {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-family: var(--font-family-inter);
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-align: center;
-  color: var(--text-color);
-  background-color: var(--panel-bg-color);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-family-inter);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text-color);
+    background-color: var(--panel-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
 }
 
 .btn-full-width:active {
-  transform: scale(0.98);
+    transform: scale(0.98);
 }
 
 .btn-full-width.active {
-  border: 2px solid var(--primary-color);
-  cursor: default;
+    border: 2px solid var(--primary-color);
+    cursor: default;
 }
 
 .btn-full-width.active:hover {
-  filter: none;
-  transform: none;
+    filter: none;
+    transform: none;
 }
 
 .btn-full-width .icon-mr {
-  margin-right: 0.5rem;
+    margin-right: 0.5rem;
 }
 
-.panel.no-slide:not(.fade-in):not(.fade-out) { animation: none !important; }
+.panel.no-slide:not(.fade-in):not(.fade-out) {
+    animation: none !important;
+}
 
-/* Скрываем частично видимые элементы в списке глав плавной маской */
+/* Tint */
 .chapters-list {
-    mask-image: linear-gradient(to bottom, transparent 0px, #000 8px, #000 calc(100% - 8px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 8px, #000 calc(100% - 8px), transparent 100%);
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0px,
+        #000 8px,
+        #000 calc(100% - 8px),
+        transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0px,
+        #000 8px,
+        #000 calc(100% - 8px),
+        transparent 100%
+    );
 }
 
-/* --- Индикатор загрузки главы (SPA) --- */
+/* Chapters loading */
 .chapter-loading-overlay {
     position: fixed;
     top: 0;
@@ -1095,7 +1079,12 @@ subtitle {
     height: 3px;
     pointer-events: none;
     z-index: 999;
-    background-image: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color) 50%, transparent 50%);
+    background-image: linear-gradient(
+        90deg,
+        var(--primary-color) 0%,
+        var(--primary-color) 50%,
+        transparent 50%
+    );
     background-size: 200% 100%;
     animation: chapter-loading-stripes 1s linear infinite;
 }
@@ -1105,8 +1094,12 @@ subtitle {
 }
 
 @keyframes chapter-loading-stripes {
-    0% { background-position: 100% 0; }
-    100% { background-position: -100% 0; }
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: -100% 0;
+    }
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -1119,13 +1112,145 @@ subtitle {
         height: 150px;
         background: linear-gradient(
             to bottom,
-            rgba(0,0,0,0) 0%,
-            rgba(0,0,0,0) 100%
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0) 100%
         );
         pointer-events: none;
         z-index: 9999;
     }
     .panel-overlay {
         background: transparent !important;
+    }
+}
+
+/* Footer */
+.site-footer {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 3rem 1.5rem 1.5rem;
+    font-family: var(--font-family-inter);
+    font-size: 0.9rem;
+    margin-top: auto;
+}
+
+.footer-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.footer-top {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.footer-heading {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-color);
+    opacity: 0.6;
+    font-weight: 600;
+    margin: 0;
+}
+
+.footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.footer-nav a {
+    color: var(--text-color);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.footer-nav a:hover {
+    opacity: 1;
+    color: var(--primary-color);
+}
+
+.footer-info-text p {
+    margin: 0 0 0.5rem 0;
+    line-height: 1.5;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.footer-email {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.footer-email:hover {
+    text-decoration: underline;
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.status-widget {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+}
+
+.footer-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    opacity: 0.5;
+    transition:
+        background-color 0.3s,
+        box-shadow 0.3s,
+        transform 0.2s;
+}
+
+.status-widget.operational .footer-status-dot {
+    background-color: #22c55e;
+    opacity: 1;
+    --shadow-color: rgba(34, 197, 94, 0.1);
+    animation: infinite 2s pulse;
+}
+
+.status-widget.degraded .footer-status-dot {
+    background-color: #eab308;
+    opacity: 1;
+    --shadow-color: rgba(234, 179, 8, 0.1);
+    animation: infinite 2s pulse;
+}
+
+.status-widget.outage .footer-status-dot {
+    background-color: #ef4444;
+    opacity: 1;
+    --shadow-color: rgba(239, 68, 68, 0.1);
+    animation: infinite 2s pulse;
+}
+
+@media (max-width: 640px) {
+    .footer-top {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
     }
 }

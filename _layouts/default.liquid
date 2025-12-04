@@ -17,11 +17,11 @@
         {{ page.title }} - {{ site.title }}
       {% endif %}
   </title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-  
+
   <link rel="icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 
@@ -30,10 +30,39 @@
   <script src="{{ '/assets/js/theme-init.js' | relative_url }}"></script>
 </head>
 <body>
-  
+
   {{ content }}
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+    <div class="footer-top">
+        <div class="footer-column">
+        <h3 class="footer-heading">ДОКУМЕНТЫ</h3>
+        <nav class="footer-nav">
+            <a href="{{ '/translators/' | relative_url }}">О переводчиках</a>
+            <a href="{{ '/dmca/' | relative_url }}">DMCA</a>
+            <a href="{{ '/rights/' | relative_url }}">Правообладателям</a>
+            <a href="{{ '/privacy/' | relative_url }}">Конфиденциальность</a>
+        </nav>
+        </div>
+        <div class="footer-column">
+        <h3 class="footer-heading">ИНФОРМАЦИЯ</h3>
+        <div class="footer-info-text">
+            <p>Если материал в сервисе shadowslave.ru нарушает ваши авторские права — направьте уведомление на <a href="mailto:support@kappalib.ru" class="footer-email">support@kappalib.ru</a></p>
+        </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="copyright">© shadowslave.ru 2025</div>
+        <div id="status-widget" class="status-widget">
+        <span class="footer-status-dot"></span>
+        <span class="status-text">Загрузка...</span>
+        </div>
+    </div>
+    </div>
+  </footer>
 
   <script src="{{ '/assets/js/main.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/router.js' | relative_url }}" defer></script>
 </body>
-</html> 
+</html>

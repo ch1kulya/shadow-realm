@@ -20,13 +20,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.4'
+          ruby-version: "3.4"
           bundler-cache: true
-          
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
@@ -39,14 +39,15 @@ jobs:
           restore-keys: |
             chapters-${{ hashFiles('**/Gemfile.lock') }}-
             chapters-
-        
+
       - name: Build with Jekyll via Rake
         run: bundle exec rake build
         env:
           JEKYLL_ENV: production
-          CHAPTERS_BUCKET_URL: ${{ secrets.CHAPTERS_BUCKET_URL }}
-          CHAPTERS_CONCURRENCY: ${{ vars.CHAPTERS_CONCURRENCY }}
-          
+          API_URL: ${{ secrets.API_URL }}
+          NOVEL_ID: ${{ secrets.NOVEL_ID }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
