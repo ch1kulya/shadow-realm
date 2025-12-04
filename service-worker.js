@@ -94,9 +94,10 @@ async function cacheAll() {
   try {
     const response = await fetch("/assets/index/chapters.json");
     const chapters = await response.json();
-    const chapterUrls = chapters.map(
-      (ch) => new URL(ch.url, self.location.origin).href,
-    );
+    const chapterUrls = chapters.map((ch) => {
+      const padNum = String(ch.number).padStart(4, "0");
+      return new URL(`/chapters/${padNum}/`, self.location.origin).href;
+    });
 
     const cachedRequests = await cache.keys();
     const urlsInCache = cachedRequests.map((r) => r.url);

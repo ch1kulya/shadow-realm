@@ -606,6 +606,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function getChapterUrl(number) {
+    return "/chapters/" + String(number).padStart(4, "0") + "/";
+  }
+
   function renderChapterList(chapters) {
     chaptersListContainer.innerHTML = "";
     const fragment = document.createDocumentFragment();
@@ -622,17 +626,19 @@ document.addEventListener("DOMContentLoaded", () => {
         li.classList.add("current");
       }
 
+      const chapterUrl = getChapterUrl(chapter.number);
+
       const isBookmarked = isChapterBookmarked(chapter.number);
       const bookmarkIcon = isBookmarked
         ? `<svg class="toc-bookmark-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>`
         : "";
 
       li.innerHTML = `
-                <a href="${chapter.url}">
-                    <span class="chapter-num">${chapter.number}.</span>
-                    <span class="chapter-title">${chapter.title}</span>
-                    ${bookmarkIcon}
-                </a>`;
+                  <a href="${chapterUrl}">
+                      <span class="chapter-num">${chapter.number}.</span>
+                      <span class="chapter-title">${chapter.title}</span>
+                      ${bookmarkIcon}
+                  </a>`;
       fragment.appendChild(li);
     });
     chaptersListContainer.appendChild(fragment);

@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'net/http'
+require 'uri'
+require 'json'
+require 'fileutils'
+
 module ChaptersFetcher
   class Fetcher
     def initialize(site)
@@ -9,10 +14,14 @@ module ChaptersFetcher
       @api_token = ENV['API_TOKEN']
 
       @chapters_dir = File.join(site.source, '_chapters')
+      @index_dir = File.join(site.source, 'assets', 'index')
+      @index_file = File.join(@index_dir, 'chapters.json')
+
       FileUtils.mkdir_p(@chapters_dir)
+      FileUtils.mkdir_p(@index_dir)
 
       if @api_token.nil? || @api_token.empty?
-        puts "[chapters] \e[33mWARNING: API_TOKEN not set. Running in safe mode to avoid 429 errors.\e[0m"
+        puts "[chapters] \e[33mWARNING: API_TOKEN not set. Running in safe mode.\e[0m"
         @concurrency = 1
         @delay = 0.5
       else
@@ -28,16 +37,18 @@ module ChaptersFetcher
     end
 
     def run
-      puts "[chapters] Fetching chapters list from API (#{@api_base})..."
+      puts "[chapters] Fetching chapters list from API..."
 
       all_chapters = fetch_chapters_list
 
       if all_chapters.empty?
-        puts "[chapters] No chapters found or error fetching list."
+        puts "[chapters] No chapters found."
         return
       end
 
-      puts "[chapters] Found #{all_chapters.size} chapters in API."
+      puts "[chapters] Found #{all_chapters.size} chapters."
+
+      generate_index(all_chapters)
 
       to_download_count = 0
       all_chapters.each do |ch|
@@ -50,70 +61,75 @@ module ChaptersFetcher
       @skipped = all_chapters.size - to_download_count
 
       if to_download_count == 0
-        puts "[chapters] All chapters are up to date."
+        puts "[chapters] Content up to date."
         return
       end
 
-      puts "[chapters] Downloading #{to_download_count} new chapters using #{@concurrency} persistent workers..."
+      puts "[chapters] Downloading #{to_download_count} new chapters..."
 
       workers = (1..@concurrency).map do |i|
         Thread.new { worker_loop(i) }
       end
-
       workers.each(&:join)
 
-      puts "[chapters] Summary:"
-      puts "  Downloaded: #{@downloaded}"
-      puts "  Skipped: #{@skipped}"
-      puts "  Errors: #{@errors}"
+      puts "[chapters] Done: +#{@downloaded}, S:#{@skipped}, E:#{@errors}"
     end
 
     private
 
+    def generate_index(chapters)
+      puts "[chapters] Generating optimized chapters.json..."
+
+      index_data = chapters
+        .sort_by { |ch| ch['chapter_num'] }
+        .map do |ch|
+          {
+            "number" => ch['chapter_num'],
+            "title" => ch['title']
+          }
+        end
+
+      File.write(@index_file, JSON.pretty_generate(index_data))
+      puts "[chapters] Index saved to #{@index_file} (#{index_data.size} entries)"
+    end
+
     def worker_loop(id)
       uri = URI(@api_base)
-
       Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 10, read_timeout: 30) do |http|
         while !@queue.empty?
           begin
-            chapter_info = @queue.pop(true)
+            chapter = @queue.pop(true)
           rescue ThreadError
             break
           end
-
-          process_chapter_with_connection(http, chapter_info)
+          process_chapter(http, chapter)
         end
       end
     rescue => e
       puts "[chapters] Worker #{id} error: #{e.message}"
     end
 
-    def process_chapter_with_connection(http, info)
+    def process_chapter(http, info)
       sleep(@delay) if @delay > 0
 
-      id = info['id']
-      num = info['chapter_num']
-
-      req = Net::HTTP::Get.new("/chapters/#{id}")
+      req = Net::HTTP::Get.new("/chapters/#{info['id']}")
       req['X-Service-Token'] = @api_token if @api_token && !@api_token.empty?
       req['Connection'] = 'keep-alive'
 
       begin
         response = http.request(req)
-
         if response.is_a?(Net::HTTPSuccess)
-          chapter_data = JSON.parse(response.body)
-          save_to_file(chapter_data)
-
+          data = JSON.parse(response.body)
+          save_to_file(data)
           @mutex.synchronize { @downloaded += 1 }
-          puts "[chapters] Downloaded chapter #{num}"
+          puts "[chapters] Downloaded #{info['chapter_num']}"
         else
           @mutex.synchronize { @errors += 1 }
-          puts "[chapters] Failed to download chapter #{num} (ID: #{id}) - Status: #{response.code}"
+          puts "[chapters] Failed #{info['chapter_num']}: #{response.code}"
         end
       rescue => e
         @mutex.synchronize { @errors += 1 }
-        puts "[chapters] Error processing chapter #{num}: #{e.message}"
+        puts "[chapters] Error #{info['chapter_num']}: #{e.message}"
       end
     end
 
@@ -122,19 +138,16 @@ module ChaptersFetcher
       req = Net::HTTP::Get.new(uri)
       req['X-Service-Token'] = @api_token if @api_token && !@api_token.empty?
 
-      res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-        http.request(req)
-      end
+      res = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
 
       if res.is_a?(Net::HTTPSuccess)
-        json = JSON.parse(res.body)
-        json['chapters'] || []
+        JSON.parse(res.body)['chapters'] || []
       else
-        puts "[chapters] HTTP Error fetching list: #{res.code}"
+        puts "[chapters] List fetch failed: #{res.code}"
         []
       end
     rescue => e
-      puts "[chapters] Network error fetching list: #{e.message}"
+      puts "[chapters] List fetch error: #{e.message}"
       []
     end
 
@@ -146,9 +159,7 @@ module ChaptersFetcher
       num = data['chapter_num']
       title = data['title'].to_s.gsub('"', '\"')
       content = data['content']
-
-      filename = format_filename(num)
-      path = File.join(@chapters_dir, filename)
+      path = File.join(@chapters_dir, format_filename(num))
 
       file_content = <<~MARKDOWN
         ---
@@ -158,7 +169,6 @@ module ChaptersFetcher
         ---
         #{content}
       MARKDOWN
-
       File.write(path, file_content)
     end
   end

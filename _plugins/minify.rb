@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'minify_html'
+require 'uglifier'
+require 'sassc'
+
 Jekyll::Hooks.register :site, :post_write do |site|
   puts "[minify] Starting minification process..."
 

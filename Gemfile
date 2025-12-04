@@ -6,12 +6,13 @@ group :jekyll_plugins do
   gem "github-pages"
 end
 
-gem "fiddle"
 gem "wdm", ">= 0.1.0" if Gem.win_platform?
 
+gem "dotenv"
+gem "fiddle"
+gem "fileutils"
 gem "minify_html"
 gem "rake"
 gem "sassc"
+gem "thread"
 gem "uglifier"
-
-gem "dotenv"

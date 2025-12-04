@@ -5,3 +5,4 @@ Gemfile.lock
 dev-cert.pem
 dev-cert-key.pem
 .metadata.json
+/assets/index
