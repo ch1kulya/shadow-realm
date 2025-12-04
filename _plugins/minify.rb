@@ -1,6 +1,4 @@
-require 'minify_html'
-require 'uglifier'
-require 'sassc'
+# frozen_string_literal: true
 
 Jekyll::Hooks.register :site, :post_write do |site|
   puts "[minify] Starting minification process..."
@@ -32,7 +30,6 @@ Jekyll::Hooks.register :site, :post_write do |site|
       File.write(file, minified)
       new_size = minified.bytesize
       saved = original_size - new_size
-      saved_percent = ((saved.to_f / original_size) * 100).round(2)
       total_saved += saved
       html_count += 1
     rescue => e
@@ -56,7 +53,6 @@ Jekyll::Hooks.register :site, :post_write do |site|
       File.write(file, minified)
       new_size = minified.bytesize
       saved = original_size - new_size
-      saved_percent = ((saved.to_f / original_size) * 100).round(2)
       total_saved += saved
       css_count += 1
     rescue => e
@@ -86,7 +82,6 @@ Jekyll::Hooks.register :site, :post_write do |site|
       File.write(file, minified)
       new_size = minified.bytesize
       saved = original_size - new_size
-      saved_percent = ((saved.to_f / original_size) * 100).round(2)
       total_saved += saved
       js_count += 1
     rescue => e

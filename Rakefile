@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'jekyll'
 require 'dotenv'
 Dotenv.load
@@ -6,9 +8,9 @@ desc "Build and minify"
 task :build do
   puts "[rake] Building Jekyll site..."
 
-  require_relative '_plugins/fetch-chapters'
+  require_relative '_plugins/build_size'
+  require_relative '_plugins/fetch_chapters'
   require_relative '_plugins/minify'
-  require_relative '_plugins/build-size'
 
   Jekyll::Site.new(Jekyll.configuration).process
   puts "[rake] Done!"
@@ -24,9 +26,7 @@ task :serve => :build do
     'watch' => true,
     'incremental' => true,
     'livereload' => false,
-    'host' => '0.0.0.0',
-    'port' => '4000',
-    'ssl_cert' => './dev-cert.pem',
-    'ssl_key' => './dev-cert-key.pem'
+    'host' => '127.0.0.1',
+    'port' => '4000'
   })
 end

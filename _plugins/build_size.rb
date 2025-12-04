@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Jekyll::Hooks.register :site, :post_write do |site|
   total_size = 0
 
