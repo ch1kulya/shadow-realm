@@ -9,7 +9,7 @@ task :build do
   require_relative '_plugins/fetch-chapters'
   require_relative '_plugins/minify'
   require_relative '_plugins/build-size'
-  
+
   Jekyll::Site.new(Jekyll.configuration).process
   puts "[rake] Done!"
 end
@@ -17,7 +17,7 @@ end
 desc "Serve site locally"
 task :serve => :build do
   puts "[rake] Starting Jekyll development server..."
-  
+
   Jekyll::Commands::Serve.process({
     'source' => '.',
     'destination' => '_site',

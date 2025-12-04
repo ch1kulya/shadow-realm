@@ -127,4 +127,4 @@ class ReaderHeader extends HTMLElement {
   }
 }
 
-customElements.define('reader-header', ReaderHeader);
+customElements.define("reader-header", ReaderHeader);
