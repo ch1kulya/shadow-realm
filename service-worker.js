@@ -1,4 +1,4 @@
-const STATIC_CACHE = "static-12042025";
+const STATIC_CACHE = "static-12052025";
 const CHAPTERS_CACHE = "chapters-cache";
 
 const STATIC_ASSETS = [
