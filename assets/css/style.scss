@@ -82,7 +82,7 @@ subtitle {
     flex-grow: 1;
     width: 100%;
     box-sizing: border-box;
-    min-height: 100dvh;
+    min-height: 100vh;
 }
 
 .welcome-container {
@@ -92,6 +92,7 @@ subtitle {
     justify-content: center;
     text-align: center;
     padding: 2rem;
+    padding-bottom: 4rem;
 }
 
 .book-container {
@@ -306,7 +307,7 @@ li a:focus-visible {
 
 @media (max-width: 490px) {
     .welcome-container {
-        padding: 2rem 1.5rem;
+        padding: 2rem 1.5rem 5rem;
     }
     .page-container {
         padding: 1rem;
