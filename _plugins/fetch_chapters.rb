@@ -37,12 +37,12 @@ module ChaptersFetcher
     end
 
     def run
-      puts "[chapters] Fetching chapters list from API..."
+      puts '[chapters] Fetching chapters list from API...'
 
       all_chapters = fetch_chapters_list
 
       if all_chapters.empty?
-        puts "[chapters] No chapters found."
+        puts '[chapters] No chapters found.'
         return
       end
 
@@ -60,8 +60,8 @@ module ChaptersFetcher
 
       @skipped = all_chapters.size - to_download_count
 
-      if to_download_count == 0
-        puts "[chapters] Content up to date."
+      if to_download_count.zero?
+        puts '[chapters] Content up to date.'
         return
       end
 
@@ -78,16 +78,16 @@ module ChaptersFetcher
     private
 
     def generate_index(chapters)
-      puts "[chapters] Generating optimized chapters.json..."
+      puts '[chapters] Generating optimized chapters.json...'
 
       index_data = chapters
-        .sort_by { |ch| ch['chapter_num'] }
-        .map do |ch|
-          {
-            "number" => ch['chapter_num'],
-            "title" => ch['title']
-          }
-        end
+                   .sort_by { |ch| ch['chapter_num'] }
+                   .map do |ch|
+        {
+          'number' => ch['chapter_num'],
+          'title' => ch['title']
+        }
+      end
 
       File.write(@index_file, JSON.pretty_generate(index_data))
       puts "[chapters] Index saved to #{@index_file} (#{index_data.size} entries)"
@@ -96,7 +96,7 @@ module ChaptersFetcher
     def worker_loop(id)
       uri = URI(@api_base)
       Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 10, read_timeout: 30) do |http|
-        while !@queue.empty?
+        until @queue.empty?
           begin
             chapter = @queue.pop(true)
           rescue ThreadError
@@ -105,12 +105,12 @@ module ChaptersFetcher
           process_chapter(http, chapter)
         end
       end
-    rescue => e
+    rescue StandardError => e
       puts "[chapters] Worker #{id} error: #{e.message}"
     end
 
     def process_chapter(http, info)
-      sleep(@delay) if @delay > 0
+      sleep(@delay) if @delay.positive?
 
       req = Net::HTTP::Get.new("/chapters/#{info['id']}")
       req['X-Service-Token'] = @api_token if @api_token && !@api_token.empty?
@@ -127,7 +127,7 @@ module ChaptersFetcher
           @mutex.synchronize { @errors += 1 }
           puts "[chapters] Failed #{info['chapter_num']}: #{response.code}"
         end
-      rescue => e
+      rescue StandardError => e
         @mutex.synchronize { @errors += 1 }
         puts "[chapters] Error #{info['chapter_num']}: #{e.message}"
       end
@@ -146,13 +146,13 @@ module ChaptersFetcher
         puts "[chapters] List fetch failed: #{res.code}"
         []
       end
-    rescue => e
+    rescue StandardError => e
       puts "[chapters] List fetch error: #{e.message}"
       []
     end
 
     def format_filename(num)
-      format("%04d.md", num)
+      format('%04d.md', num)
     end
 
     def save_to_file(data)

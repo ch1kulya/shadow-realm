@@ -5,7 +5,7 @@ require 'uglifier'
 require 'sassc'
 
 Jekyll::Hooks.register :site, :post_write do |site|
-  puts "[minify] Starting minification process..."
+  puts '[minify] Starting minification process...'
 
   html_count = 0
   css_count = 0
@@ -13,32 +13,30 @@ Jekyll::Hooks.register :site, :post_write do |site|
   total_saved = 0
 
   Dir.glob(File.join(site.dest, '**/*.html')).each do |file|
-    begin
-      content = File.read(file)
-      original_size = content.bytesize
+    content = File.read(file)
+    original_size = content.bytesize
 
-      minified = minify_html(content, {
-        :keep_spaces_between_attributes => false,
-        :minify_js => true,
-        :minify_css => true,
-        :remove_comments => true,
-        :collapse_whitespace => true,
-        :remove_quotes => true,
-        :remove_script_attributes => true,
-        :remove_style_attributes => true,
-        :keep_closing_tags => false,
-        :remove_redundant_attributes => true,
-        :decode_entities => true
-      })
+    minified = minify_html(content, {
+                             keep_spaces_between_attributes: false,
+                             minify_js: true,
+                             minify_css: true,
+                             remove_comments: true,
+                             collapse_whitespace: true,
+                             remove_quotes: true,
+                             remove_script_attributes: true,
+                             remove_style_attributes: true,
+                             keep_closing_tags: false,
+                             remove_redundant_attributes: true,
+                             decode_entities: true
+                           })
 
-      File.write(file, minified)
-      new_size = minified.bytesize
-      saved = original_size - new_size
-      total_saved += saved
-      html_count += 1
-    rescue => e
-      puts "  Error minifying HTML #{file}: #{e.message}"
-    end
+    File.write(file, minified)
+    new_size = minified.bytesize
+    saved = original_size - new_size
+    total_saved += saved
+    html_count += 1
+  rescue StandardError => e
+    puts "  Error minifying HTML #{file}: #{e.message}"
   end
 
   Dir.glob(File.join(site.dest, '**/*.css')).each do |file|
@@ -49,17 +47,17 @@ Jekyll::Hooks.register :site, :post_write do |site|
       original_size = content.bytesize
 
       minified = SassC::Engine.new(content, {
-        syntax: :scss,
-        style: :compressed,
-        load_paths: [File.dirname(file)]
-      }).render
+                                     syntax: :scss,
+                                     style: :compressed,
+                                     load_paths: [File.dirname(file)]
+                                   }).render
 
       File.write(file, minified)
       new_size = minified.bytesize
       saved = original_size - new_size
       total_saved += saved
       css_count += 1
-    rescue => e
+    rescue StandardError => e
       puts "  Error minifying CSS #{file}: #{e.message}"
     end
   end
@@ -88,12 +86,12 @@ Jekyll::Hooks.register :site, :post_write do |site|
       saved = original_size - new_size
       total_saved += saved
       js_count += 1
-    rescue => e
+    rescue StandardError => e
       puts "  Error minifying JS #{file}: #{e.message}"
     end
   end
 
-  puts "[minify] Minification completed!"
+  puts '[minify] Minification completed!'
   puts "  Processed: #{html_count} HTML, #{css_count} CSS, #{js_count} JS files"
   puts "  Total saved: #{(total_saved / 1024.0).round(2)} KB"
 end
