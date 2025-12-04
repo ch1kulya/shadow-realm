@@ -40,7 +40,7 @@ permalink: /
     <a href="{{ '/privacy' | relative_url }}">Конфиденциальность</a>
   </div>
 </div>
-<div class="reader-footer">© ch1ka 2025</div>
+<div class="reader-footer">© shadowslave.ru 2025</div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const startReadingBtn = document.querySelector('.btn-start-reading');
