@@ -16,3 +16,7 @@ gem 'rake'
 gem 'sassc'
 gem 'thread'
 gem 'uglifier'
+
+gem 'aws-sdk-s3'
+gem 'digest'
+gem 'mime-types'

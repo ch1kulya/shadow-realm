@@ -52,6 +52,10 @@ body {
     min-height: 100vh;
 }
 
+hr {
+    border: 1px solid var(--border-color);
+}
+
 h1 {
     font-size: clamp(1.8rem, 4.5vw, 2.4rem);
 }

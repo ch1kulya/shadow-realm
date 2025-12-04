@@ -38,3 +38,6 @@ sass:
 exclude:
   - Rakefile
   - vendor/
+  - Gemfile
+  - Gemfile.lock
+  - README.md

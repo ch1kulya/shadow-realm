@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Правообладателям
-permalink: /rights
+permalink: /rights/
 ---
 
 <h1>Заявление о защите авторских прав</h1>

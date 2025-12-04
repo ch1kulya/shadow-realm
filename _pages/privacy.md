@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Политика конфиденциальности
-permalink: /privacy
+permalink: /privacy/
 ---
 
 <h1>Политика конфиденциальности</h1>

@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Переводчики
-permalink: /translators
+permalink: /translators/
 ---
 
 <h1>О переводчиках</h1>

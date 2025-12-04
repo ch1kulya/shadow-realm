@@ -1,7 +1,7 @@
 ---
 layout: page
 title: DMCA
-permalink: /dmca
+permalink: /dmca/
 ---
 
 <h1>DMCA Policy</h1>
