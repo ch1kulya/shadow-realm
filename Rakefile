@@ -10,9 +10,11 @@ task :build do
 
   require_relative '_plugins/build_size'
   require_relative '_plugins/fetch_chapters'
-  require_relative '_plugins/minify'
 
-  Jekyll::Site.new(Jekyll.configuration).process
+  config = Jekyll.configuration({ 'incremental' => true })
+
+  Jekyll::Site.new(config).process
+
   puts '[rake] Done!'
 end
 
@@ -23,10 +25,16 @@ task serve: :build do
   Jekyll::Commands::Serve.process({
                                     'source' => '.',
                                     'destination' => '_site',
-                                    'watch' => true,
-                                    'incremental' => true,
-                                    'livereload' => false,
                                     'host' => '127.0.0.1',
                                     'port' => '4000'
                                   })
+end
+
+desc 'Clean build artifacts'
+task :clean do
+  FileUtils.rm_rf('_site')
+  FileUtils.rm_rf('.jekyll-metadata')
+  FileUtils.rm_rf('_chapters')
+  FileUtils.rm_rf('assets/index')
+  puts '[rake] Cleaned.'
 end

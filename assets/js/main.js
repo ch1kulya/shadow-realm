@@ -3,6 +3,55 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.classList.remove("no-transitions");
   });
 
+  function initStatusBadge() {
+    const widget = document.getElementById("status-widget");
+    if (!widget) return;
+
+    const dot = widget.querySelector(".footer-status-dot");
+    const text = widget.querySelector(".status-text");
+
+    if (!dot || !text) return;
+
+    fetch("https://kappalib.ru/status")
+      .then((res) => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+      })
+      .then((data) => {
+        const indicator = data.status.indicator;
+        const description = data.status.description;
+
+        widget.classList.remove("operational", "degraded", "outage");
+        text.textContent = description;
+
+        switch (indicator) {
+          case "none":
+            widget.classList.add("operational");
+            break;
+          case "minor":
+            widget.classList.add("degraded");
+            break;
+          case "major":
+            widget.classList.add("outage");
+            break;
+          case "maintenance":
+            widget.classList.add("degraded");
+            break;
+          default:
+            dot.style.backgroundColor = "var(--text-color)";
+            dot.style.opacity = "0.5";
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch status:", err);
+        text.textContent = "Статус недоступен";
+        dot.style.backgroundColor = "var(--text-color)";
+        dot.style.opacity = "0.5";
+      });
+  }
+
+  initStatusBadge();
+
   const readerContainer = document.querySelector(".reader-container");
 
   if (readerContainer) {
@@ -764,26 +813,29 @@ document.addEventListener("DOMContentLoaded", () => {
   loadBookmarks();
   updateBookmarkStatus();
 
-  const readerFooter = document.querySelector(".reader-footer");
+  const readerFooter = document.querySelector(".site-footer");
 
   function updateFloatingNavPosition() {
     if (!floatingNav || !readerFooter) return;
+
     const footerRect = readerFooter.getBoundingClientRect();
     const windowHeight = window.innerHeight;
+
     const safeAreaBottom =
       parseFloat(
         getComputedStyle(document.documentElement).getPropertyValue(
           "--safe-area-bottom",
         ),
       ) || 0;
+
     const defaultBottom = 24 + safeAreaBottom;
-    const extraOffset = -20;
-    if (footerRect.top >= windowHeight) {
-      floatingNav.style.bottom = defaultBottom + "px";
-    } else {
-      const overlap = windowHeight - footerRect.bottom + extraOffset;
+
+    if (footerRect.top < windowHeight) {
+      const newBottom = windowHeight - footerRect.top + 15;
       floatingNav.style.bottom =
-        (overlap > defaultBottom ? overlap : defaultBottom) + "px";
+        (newBottom > defaultBottom ? newBottom : defaultBottom) + "px";
+    } else {
+      floatingNav.style.bottom = defaultBottom + "px";
     }
   }
 
