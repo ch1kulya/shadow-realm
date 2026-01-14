@@ -112,7 +112,8 @@ module ChaptersFetcher
     def process_chapter(http, info)
       sleep(@delay) if @delay.positive?
 
-      req = Net::HTTP::Get.new("/chapters/#{info['id']}")
+      uri = URI.join(@api_base + "/", "chapters/#{info['id']}")
+      req = Net::HTTP::Get.new(uri)
       req['X-Service-Token'] = @api_token if @api_token && !@api_token.empty?
       req['Connection'] = 'keep-alive'
 
