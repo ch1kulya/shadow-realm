@@ -24,6 +24,19 @@
     chapterLoader.hidden = true;
   }
 
+  function refreshAdBanner() {
+    const adBanner = document.querySelector(".ad-banner .mrg-tag");
+    if (adBanner) {
+      adBanner.removeAttribute("data-ad-status");
+      adBanner.innerHTML = "";
+    }
+    if (typeof MRGtag !== "undefined") {
+      MRGtag.push({});
+    } else {
+      (window.MRGtag = window.MRGtag || []).push({});
+    }
+  }
+
   function scrollToPageTop() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     if (isIOS) {
@@ -127,6 +140,7 @@
       });
 
       syncBookmarkUI();
+      refreshAdBanner();
     } catch (err) {
       console.error("SPA navigation failed, falling back to full reload", err);
       location.href = url;
