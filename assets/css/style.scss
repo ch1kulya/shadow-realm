@@ -90,6 +90,11 @@ subtitle {
     flex-grow: 1;
     width: 100%;
     box-sizing: border-box;
+}
+
+.reader-container,
+.page-container,
+.not-found-container {
     min-height: 100vh;
 }
 
@@ -101,6 +106,7 @@ subtitle {
     text-align: center;
     padding: 2rem;
     padding-bottom: 4rem;
+    min-height: 100svh;
 }
 
 .book-container {
@@ -483,6 +489,13 @@ li a:focus-visible {
     margin-bottom: 0.5em;
 }
 
+.ad-banner {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 2rem 0;
+}
+
 .chapter-nav {
     display: flex;
     justify-content: space-between;
@@ -795,9 +808,8 @@ li a:focus-visible {
     z-index: 50;
     pointer-events: none;
     opacity: 0;
-    transition:
-        opacity 0.3s ease-in-out,
-        bottom 0.005s linear;
+    transition: opacity 0.3s ease-in-out;
+    will-change: opacity, bottom;
 }
 
 .floating-nav.visible,
@@ -820,12 +832,11 @@ li a:focus-visible {
     justify-content: center;
     align-items: center;
     pointer-events: all;
-    transition: transform 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.nav-arrow:hover {
-    transform: scale(1.1);
+.nav-arrow:active {
+    transform: scale(0.95);
 }
 
 .nav-arrow svg {

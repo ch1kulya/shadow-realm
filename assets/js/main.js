@@ -771,17 +771,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let scrollThreshold = 0;
 
   function handleScroll() {
-    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    let currentDirection = scrollTop > lastScrollTop ? "down" : "up";
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const currentDirection = scrollTop > lastScrollTop ? "down" : "up";
 
     if (scrollDirection !== currentDirection) {
       scrollDirection = currentDirection;
       scrollThreshold = 0;
     }
 
-    if (scrollDirection === currentDirection) {
-      scrollThreshold += Math.abs(scrollTop - lastScrollTop);
-    }
+    scrollThreshold += Math.abs(scrollTop - lastScrollTop);
 
     if (scrollThreshold >= 10) {
       if (scrollTop > lastScrollTop && scrollTop > 40) {
@@ -807,7 +805,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ).observe(endSentinel);
   }
 
-  window.addEventListener("scroll", handleScroll, false);
+  window.addEventListener("scroll", handleScroll, { passive: true });
 
   loadSettings();
   loadBookmarks();
@@ -815,20 +813,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const readerFooter = document.querySelector(".site-footer");
 
+  const safeAreaBottom =
+    parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--safe-area-bottom",
+      ),
+    ) || 0;
+  const defaultBottom = 24 + safeAreaBottom;
+
   function updateFloatingNavPosition() {
     if (!floatingNav || !readerFooter) return;
 
     const footerRect = readerFooter.getBoundingClientRect();
     const windowHeight = window.innerHeight;
-
-    const safeAreaBottom =
-      parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue(
-          "--safe-area-bottom",
-        ),
-      ) || 0;
-
-    const defaultBottom = 24 + safeAreaBottom;
 
     if (footerRect.top < windowHeight) {
       const newBottom = windowHeight - footerRect.top + 15;
@@ -839,8 +836,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  window.addEventListener("scroll", updateFloatingNavPosition);
-  window.addEventListener("resize", updateFloatingNavPosition);
+  window.addEventListener("scroll", updateFloatingNavPosition, { passive: true });
+  window.addEventListener("resize", updateFloatingNavPosition, { passive: true });
 
   if (floatingNav) {
     floatingNav.classList.add("visible");

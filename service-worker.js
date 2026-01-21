@@ -1,4 +1,4 @@
-const STATIC_CACHE = "static-12052025";
+const STATIC_CACHE = "static-01-21-2026";
 const CHAPTERS_CACHE = "chapters-cache";
 
 const STATIC_ASSETS = [
@@ -161,6 +161,11 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const { url } = event.request;
+  const requestUrl = new URL(url);
+
+  if (requestUrl.origin !== self.location.origin) {
+    return;
+  }
 
   if (url.includes("/assets/index/chapters.json")) {
     event.respondWith(
