@@ -1,5 +1,5 @@
-const STATIC_CACHE = "static-01-21-2026";
-const CHAPTERS_CACHE = "chapters-cache";
+const STATIC_CACHE = "static-01-23-2026";
+const CHAPTERS_CACHE = "chapters-01-23-2026";
 
 const STATIC_ASSETS = [
   "/",
@@ -124,8 +124,8 @@ self.addEventListener("install", (event) => {
       caches.open(STATIC_CACHE).then((cache) => {
         return cache.addAll([...STATIC_ASSETS, ...FONT_ASSETS]);
       }),
-      caches.open(CHAPTERS_CACHE).then((cache) => {
-        return fetch("/assets/index/chapters.json")
+      caches.open(CHAPTERS_CACHE).then((cache) =>
+        fetch("/assets/index/chapters.json")
           .then((response) => {
             if (response.ok) {
               return cache.put("/assets/index/chapters.json", response);
@@ -136,8 +136,8 @@ self.addEventListener("install", (event) => {
               "Service Worker: Could not cache chapters.json during install",
               err,
             );
-          });
-      }),
+          }),
+      ),
     ]),
   );
 });

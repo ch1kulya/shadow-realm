@@ -25,16 +25,18 @@
   }
 
   function refreshAdBanner() {
-    const adBanner = document.querySelector(".ad-banner .mrg-tag");
-    if (adBanner) {
-      adBanner.removeAttribute("data-ad-status");
-      adBanner.innerHTML = "";
-    }
-    if (typeof MRGtag !== "undefined") {
-      MRGtag.push({});
-    } else {
-      (window.MRGtag = window.MRGtag || []).push({});
-    }
+    const container = document.querySelector(".ad-banner");
+    if (!container) return;
+
+    container.innerHTML = `
+      <ins class="mrg-tag"
+        style="display:inline-block;width:320px;height:50px"
+        data-ad-client="ad-1966778"
+        data-ad-slot="1966778">
+      </ins>
+    `;
+
+    (window.MRGtag = window.MRGtag || []).push({});
   }
 
   function scrollToPageTop() {

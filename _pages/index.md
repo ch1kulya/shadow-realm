@@ -32,6 +32,15 @@ permalink: /
       {% else %}
         <p>Главы не доступны.</p>
       {% endif %}
+      
+      <div class="ad-banner">
+        <ins class="mrg-tag"
+          style="display:inline-block;width:320px;height:50px"
+          data-ad-client="ad-1966778"
+          data-ad-slot="1966778">
+        </ins>
+        <script>(MRGtag = window.MRGtag || []).push({});</script>
+      </div>
     </div>
   </main>
 </div>
