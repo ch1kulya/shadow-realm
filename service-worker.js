@@ -1,5 +1,5 @@
-const STATIC_CACHE = "static-01-23-2026";
-const CHAPTERS_CACHE = "chapters-01-23-2026";
+const STATIC_CACHE = "static-01-24-2026";
+const CHAPTERS_CACHE = "chapters-01-24-2026";
 
 const STATIC_ASSETS = [
   "/",
@@ -143,13 +143,14 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
+  const validCaches = [STATIC_CACHE, CHAPTERS_CACHE];
   event.waitUntil(
     caches
       .keys()
       .then((keys) => {
         return Promise.all(
           keys
-            .filter((key) => key.startsWith("static-") && key !== STATIC_CACHE)
+            .filter((key) => !validCaches.includes(key))
             .map((oldKey) => caches.delete(oldKey)),
         );
       })
