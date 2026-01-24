@@ -491,9 +491,21 @@ li a:focus-visible {
 
 .ad-banner {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
     margin: 2.25rem 0;
+}
+
+.ad-promo {
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+
+    a {
+        color: var(--link-color);
+        text-decoration: underline;
+    }
 }
 
 .welcome-container .ad-banner {

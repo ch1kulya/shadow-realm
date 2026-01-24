@@ -34,6 +34,7 @@
         data-ad-client="ad-1966778"
         data-ad-slot="1966778">
       </ins>
+      <p class="ad-promo">Новые главы без рекламы на <a href="https://kappalib.ru">kappalib.ru</a></p>
     `;
 
     (window.MRGtag = window.MRGtag || []).push({});
