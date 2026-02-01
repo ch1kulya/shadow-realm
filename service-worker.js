@@ -1,5 +1,5 @@
-const STATIC_CACHE = "static-01-24-2026";
-const CHAPTERS_CACHE = "chapters-01-24-2026";
+const STATIC_CACHE = "static-02-01-2026";
+const CHAPTERS_CACHE = "chapters-02-01-2026";
 
 const STATIC_ASSETS = [
   "/",

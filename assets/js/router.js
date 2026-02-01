@@ -30,9 +30,9 @@
 
     container.innerHTML = `
       <ins class="mrg-tag"
-        style="display:inline-block;width:320px;height:50px"
-        data-ad-client="ad-1966778"
-        data-ad-slot="1966778">
+        style="display:inline-block;width:320px;height:100px"
+        data-ad-client="ad-1970398"
+        data-ad-slot="1970398">
       </ins>
       <p class="ad-promo">Новые главы без рекламы на <a href="https://kappalib.ru">kappalib.ru</a></p>
     `;

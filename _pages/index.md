@@ -24,7 +24,7 @@ permalink: /
       <div class="description">
         <p>Избранный Заклятием Кошмара, Санни попадает в разрушенный магический мир. Там он, как один из Пробужденных со сверхъестественными способностями, должен выживать в смертельной битве с монстрами. Но его божественная сила имеет опасный побочный эффект...</p>
       </div>
-      
+
       {% assign chapters_for_start = site.chapters | where_exp:"item", "item.chapter_number > 0" | sort: 'name' %}
       {% assign first_chapter = chapters_for_start | first %}
       {% if first_chapter %}
@@ -32,12 +32,12 @@ permalink: /
       {% else %}
         <p>Главы не доступны.</p>
       {% endif %}
-      
+
       <div class="ad-banner">
         <ins class="mrg-tag"
-          style="display:inline-block;width:320px;height:50px"
-          data-ad-client="ad-1966778"
-          data-ad-slot="1966778">
+            style="display:inline-block;width:320px;height:100px"
+            data-ad-client="ad-1970398"
+            data-ad-slot="1970398">
         </ins>
         <script>(MRGtag = window.MRGtag || []).push({});</script>
       </div>
@@ -54,7 +54,7 @@ permalink: /
       if (bookmarks.length > 0) {
         const lastBookmark = bookmarks[bookmarks.length - 1];
         const baseUrl = '{{ "" | relative_url }}';
-        
+
         if (lastBookmark && lastBookmark.url) {
             startReadingBtn.href = baseUrl + lastBookmark.url;
             startReadingBtn.textContent = 'Продолжить чтение';
